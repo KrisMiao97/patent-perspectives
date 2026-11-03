@@ -1,0 +1,30 @@
+# Personal credentials and configuration
+.env
+.env.*
+!.env.example
+auth.json
+config.toml
+*.pem
+*.key
+
+# Research runs and generated deliverables
+/work/
+/outputs/
+/dist/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+*.zip
+**/.runtime/
+**/raw-cache/
+
+# Local tools and Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+node_modules/
+.DS_Store
+Thumbs.db

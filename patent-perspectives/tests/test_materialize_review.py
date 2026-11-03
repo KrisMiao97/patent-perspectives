@@ -20,7 +20,7 @@ class MaterializeTests(unittest.TestCase):
         self.addCleanup(self.c.close)
         engine.set_meta(self.c, 'run', {'scope': {'synthetic': True}, 'as_of_date': '2026-10-20'})
         self.text = ('[0001]Synthetic piston joins a chamber. Repeated phrase. Repeated phrase.\n'
-                     '[0002]' + 'Synthetic filler for a genuinely multi-chunk fixture. ' * 160
+                     '[0002]' + 'Synthetic filler for a long whole-document fixture. ' * 160
                      + '\n[0003]The source ends here with a complete synthetic final sentence.')
         self.doc = self.document(1, 'description', self.text)
         self.claim_text = '1. Synthetic piston joins the chamber.\n2. Synthetic valve regulates the same chamber.'
@@ -62,6 +62,107 @@ class MaterializeTests(unittest.TestCase):
         with self.assertRaisesRegex(engine.ValidationError, message):
             materializer.build(self.c, host, engine)
 
+    def whole_host(self, claims=False):
+        host = self.host(claims)
+        del host['read_chunk_ids']
+        doc = self.c.execute('SELECT * FROM documents WHERE id=?', (host['document_id'],)).fetchone()
+        host['whole_document_review'] = {
+            'document_id': doc['id'], 'source_text_hash': doc['text_hash'],
+            'reading_mode': 'whole', 'complete': True,
+            'capacity_basis': 'Synthetic whole source inspected as one task, with output capacity reserved.'}
+        host['analysis_author'] = 'synthetic-reader'
+        return host
+
+    def test_whole_document_derives_compatibility_coverage_and_preserves_author(self):
+        host = self.whole_host()
+        analysis, review = materializer.build(self.c, host, engine)
+        self.assertEqual(analysis['completed_chunk_ids'], self.doc['chunk_ids'])
+        self.assertEqual(analysis['analysis_author'], 'synthetic-reader')
+        self.assertEqual(analysis['whole_document_review']['source_characters'], len(self.text))
+        self.assertEqual(review['whole_document_review'], analysis['whole_document_review'])
+        self.assertEqual(analysis['tail_check'], host['tail_check'])
+        self.assertEqual(engine.import_analysis(self.c, analysis)['analysis_status'], 'complete')
+
+    def test_whole_document_identity_hash_capacity_and_completion_are_checked(self):
+        for field, value, message in (
+            ('document_id', self.claim_doc['document_id'], 'document_id differs'),
+            ('source_text_hash', 'stale', 'source_text_hash differs'),
+            ('complete', False, 'confirm complete reading'),
+            ('reading_mode', 'summaries', 'reading_mode'),
+            ('capacity_basis', '', 'capacity_basis'),
+            ('read_regions', [{'start': 0, 'end': 10}], 'partial read_regions')):
+            with self.subTest(field=field):
+                host = self.whole_host(); host['whole_document_review'][field] = value
+                self.reject(host, message)
+
+    def test_whole_document_checks_actual_bytes_against_stored_hash(self):
+        host = self.whole_host()
+        doc = dict(self.c.execute('SELECT * FROM documents WHERE id=?', (host['document_id'],)).fetchone())
+        doc['text'] += ' altered'
+        with self.assertRaisesRegex(engine.ValidationError, 'actual source'):
+            materializer.validate_whole_document_review(host['whole_document_review'], doc, engine.require)
+
+    def test_continuous_reading_remains_one_task_with_complete_coverage(self):
+        host = self.whole_host(); mid = len(self.text) // 2
+        host['whole_document_review'].update(
+            reading_mode='continuous', reason='Long synthetic source requires continuous viewing by the same reader.',
+            read_regions=[{'start': 0, 'end': mid}, {'start': mid - 10, 'end': len(self.text)}])
+        analysis, review = materializer.build(self.c, host, engine)
+        self.assertEqual(analysis['whole_document_review']['reading_mode'], 'continuous')
+        self.assertEqual(analysis['completed_chunk_ids'], self.doc['chunk_ids'])
+        self.assertEqual(review['whole_document_review']['read_regions'][-1]['end'], len(self.text))
+
+    def test_continuous_reading_rejects_missing_ranges_gaps_tail_and_duplicate_regions(self):
+        mid, end = len(self.text) // 2, len(self.text)
+        invalid = [None, [], [{'start': 1, 'end': end}],
+                   [{'start': 0, 'end': mid}, {'start': mid + 1, 'end': end}],
+                   [{'start': 0, 'end': end - 1}],
+                   [{'start': 0, 'end': mid}, {'start': 0, 'end': mid}, {'start': mid, 'end': end}],
+                   [{'start': 0, 'end': end + 1}], [{'start': False, 'end': end}],
+                   [{'start': mid, 'end': end}, {'start': 0, 'end': mid}]]
+        for regions in invalid:
+            with self.subTest(regions=regions):
+                host = self.whole_host()
+                host['whole_document_review'].update(reading_mode='continuous', reason='Synthetic long source', read_regions=regions)
+                self.reject(host, 'Continuous read')
+
+    def test_continuous_reading_requires_reason_and_whole_reading_still_checks_tail(self):
+        host = self.whole_host()
+        host['whole_document_review'].update(reading_mode='continuous', read_regions=[{'start': 0, 'end': len(self.text)}])
+        self.reject(host, 'requires a reason')
+        host = self.whole_host(); del host['tail_check']
+        self.reject(host, 'actual final text')
+
+    def test_whole_review_cannot_contradict_supplied_legacy_coverage(self):
+        host = self.whole_host(); host['read_chunk_ids'] = []
+        self.reject(host, 'conflict with complete')
+        host['read_chunk_ids'] = self.doc['chunk_ids']
+        self.assertEqual(materializer.build(self.c, host, engine)[0]['completed_chunk_ids'], self.doc['chunk_ids'])
+
+    def test_old_multispan_storage_can_be_read_as_one_whole_document_without_rewriting_it(self):
+        docid = self.doc['document_id']; mid = len(self.text) // 2
+        self.c.execute('DELETE FROM chunks WHERE document_id=?', (docid,))
+        ids = [docid + '-legacy-' + str(i) for i in range(2)]
+        for i, (start, end) in enumerate(((0, mid), (mid - 20, len(self.text)))):
+            self.c.execute('INSERT INTO chunks VALUES(?,?,?,?,?)', (ids[i], docid, i, start, end))
+        host = self.whole_host()
+        analysis, _ = materializer.build(self.c, host, engine)
+        self.assertEqual(analysis['completed_chunk_ids'], ids)
+        self.assertEqual(self.c.execute('SELECT COUNT(*) FROM chunks WHERE document_id=?', (docid,)).fetchone()[0], 2)
+        host = self.host(); host['read_chunk_ids'] = ids
+        self.assertEqual(materializer.build(self.c, host, engine)[0]['completed_chunk_ids'], ids)
+
+    def test_strict_run_requires_whole_review_and_named_author(self):
+        engine.set_meta(self.c, 'run', {'scope': {'synthetic': True, 'require_whole_patent_review': True},
+                                      'as_of_date': '2026-10-20'})
+        self.reject(self.host(), 'Whole-document review is required')
+        host = self.whole_host(); del host['analysis_author']
+        self.reject(host, 'requires analysis_author')
+        host['analysis_author'] = 'synthetic-reader'
+        analysis, _ = materializer.build(self.c, host, engine)
+        self.assertEqual(analysis['analysis_author'], 'synthetic-reader')
+        self.assertEqual(engine.import_analysis(self.c, analysis)['analysis_status'], 'complete')
+
     def test_exact_paragraph_and_all_host_findings_preserved(self):
         host = self.host()
         analysis, review = materializer.build(self.c, host, engine)
@@ -81,7 +182,6 @@ class MaterializeTests(unittest.TestCase):
         self.assertEqual(engine.import_analysis(self.c, analysis)['text_basis'], 'claims')
 
     def test_missing_duplicate_and_nonarray_read_chunks(self):
-        self.assertGreater(len(self.doc['chunk_ids']), 1)
         for value in (self.doc['chunk_ids'][:-1], self.doc['chunk_ids'] * 2, 'not-an-array', [None]):
             host = self.host(); host['read_chunk_ids'] = value
             self.reject(host, 'every actual source chunk')

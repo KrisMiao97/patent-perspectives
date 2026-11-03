@@ -122,7 +122,7 @@
     return parts.join(' · ');
   }
   function initialize() {
-    document.title = company + ' · 专利棱镜｜企业专利三视角分析';
+    document.title = company + ' · 专利三视角';
     $('page-title').textContent=company+'专利报告';
     $('breadcrumb-company').textContent = company;
     $('as-of').textContent = '数据截止：' + knownText(run.as_of_date);
@@ -812,4 +812,5 @@
   initializeTimelines();
   initializeProducts();
   initializeRevision06();
+  window.PP_OPEN_PATENT = (id, evidenceIds = []) => { if (byId.has(String(id))) return openPatent(String(id), evidenceIds); };
 }());

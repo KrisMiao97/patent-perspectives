@@ -5,7 +5,7 @@ adapter. V1 implements DPMA DAKZ/EAKZ/EPN plus the exact EPO publication XML.
 No network, ownership transfer, text copying or source-row mutation occurs.
 """
 from __future__ import annotations
-import hashlib,json,re,importlib.util
+import hashlib,json,re
 from pathlib import Path
 from html.parser import HTMLParser
 from urllib.parse import urlsplit,parse_qs
@@ -13,15 +13,6 @@ import xml.etree.ElementTree as ET
 
 RELATION='national_register_member_of_european_application'
 ADAPTER='dpma_eakz_epn_v1'
-EXPLICIT_OFFICIAL_ADAPTERS={'dpma_patentblatt_same_notice_v1','seeip_ep_register_v1'}
-_EXPLICIT_OFFICIAL_MODULE=None
-
-def explicit_official_adapter():
- global _EXPLICIT_OFFICIAL_MODULE
- if _EXPLICIT_OFFICIAL_MODULE is None:
-  spec=importlib.util.spec_from_file_location('pp_explicit_registration',Path(__file__).with_name('official_registration_adapter.py'))
-  _EXPLICIT_OFFICIAL_MODULE=importlib.util.module_from_spec(spec);spec.loader.exec_module(_EXPLICIT_OFFICIAL_MODULE)
- return _EXPLICIT_OFFICIAL_MODULE
 
 def _json(c,key,default=None):
  row=c.execute('SELECT value FROM meta WHERE key=?',(key,)).fetchone()
@@ -89,8 +80,6 @@ def _publication(c,pn,appid,e):
  r=c.execute('SELECT application_id FROM publications WHERE id=?',(pn,)).fetchone();e.require(r and r[0]==appid,'Publication is not owned by the stated source application: '+str(pn))
 
 def prepare(c,p,e):
- if isinstance(p,dict) and p.get('adapter') in EXPLICIT_OFFICIAL_ADAPTERS:
-  return explicit_official_adapter().prepare(c,p,e)
  e.require(isinstance(p,dict) and p.get('adapter')==ADAPTER,'Unsupported official national-register adapter; no family inference allowed')
  e.require(p.get('relation_type')==RELATION,'Explicit official national registration relation required')
  member=p.get('member_application_id');target=p.get('canonical_filing_application_id')
@@ -186,5 +175,5 @@ def state(c,scope_records,e):
    e.require(item['canonical_filing_application_id'] in selected,'Member and canonical filing scope disagree; do not silently remove the member')
    checked=prepare(c,item,e);e.require(checked['validated_proof']==item.get('validated_proof') and checked['proof_hash']==item.get('proof_hash'),'Stored registration proof or source identity changed')
    active.append(item)
-  except (e.ValidationError,OSError,ValueError,KeyError,TypeError,ImportError,RuntimeError) as exc:errors.append({'code':'registration_mapping_invalid','detail':item.get('id','unknown')+': '+str(exc)})
+  except (e.ValidationError,OSError,ValueError,KeyError,TypeError) as exc:errors.append({'code':'registration_mapping_invalid','detail':item.get('id','unknown')+': '+str(exc)})
  return {'active':active,'errors':errors}

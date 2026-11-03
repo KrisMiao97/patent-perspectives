@@ -1,6 +1,6 @@
 interface:
-  display_name: "专利棱镜｜企业专利三视角分析"
-  short_description: "先概览目标公司专利并集中确认范围，再生成含产品线与技术时间图的三视角报告"
-  default_prompt: "使用 $patent-perspectives 分析目标公司，先概览其专利情况，再集中询问尚未明确的范围和重点方向，按确认结果生成可追溯的交互报告。"
+  display_name: "专利三视角"
+  short_description: "围绕目标公司开展五类研究，以问题、比较和独立复核形成可追溯的三视角报告"
+  default_prompt: "使用 $patent-perspectives 围绕我选定的公司和问题开展立项、竞争、画像、选型或预测研究，按整篇阅读与独立复核形成技术比较、路线关系和关键发现，研判跨行业借鉴及成熟度，交付可追溯的三视角报告。"
 policy:
   allow_implicit_invocation: true

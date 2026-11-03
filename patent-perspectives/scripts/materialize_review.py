@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Resolve evidence selected in a host's full-text semantic review.
 
-The host reads every chunk and the tail, selects evidence, and authors all
+The host reads one complete patent source and its tail, selects evidence, and authors all
 technical findings, modules, tags and limitations. This standard-library helper
 only resolves original spans and checks the input contract. It performs no
 classification, summarization, inference, model call or network request.
@@ -9,6 +9,7 @@ classification, summarization, inference, model call or network request.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import re
@@ -30,6 +31,67 @@ def string_list(value):
 
 def integer(value):
     return isinstance(value, int) and not isinstance(value, bool)
+
+
+def validate_whole_document_review(value, doc, require):
+    """Validate a source-bound reading attestation, not semantic understanding.
+
+    This pure helper is also used by the core importer. It never loads the engine,
+    partitions text, or changes legacy chunk records.
+    """
+    require(isinstance(value, dict), 'Whole-document review must be an object')
+    text = doc['text']
+    require(value.get('document_id') == doc['id'], 'Whole-document review document_id differs from selected source')
+    require(value.get('source_text_hash') == doc['text_hash']
+            and hashlib.sha256(text.encode('utf-8')).hexdigest() == doc['text_hash'],
+            'Whole-document review source_text_hash differs from actual source')
+    require(value.get('complete') is True, 'Whole-document review must explicitly confirm complete reading')
+    mode = value.get('reading_mode')
+    require(mode in ('whole', 'continuous'), 'Whole-document reading_mode must be whole or continuous')
+    require(isinstance(value.get('capacity_basis'), str) and value['capacity_basis'].strip(),
+            'Whole-document review needs a host-authored capacity_basis')
+    result = {'document_id': doc['id'], 'source_text_hash': doc['text_hash'],
+              'reading_mode': mode, 'complete': True, 'capacity_basis': value['capacity_basis'],
+              'source_characters': len(text)}
+    if mode == 'whole':
+        require(not value.get('read_regions'), 'Whole reading must not contain partial read_regions')
+    else:
+        require(isinstance(value.get('reason'), str) and value['reason'].strip(),
+                'Continuous whole-document reading requires a reason')
+        regions = value.get('read_regions')
+        require(isinstance(regions, list) and regions, 'Continuous reading requires actual read_regions')
+        end_read, previous_start, checked = 0, -1, []
+        for region in regions:
+            require(isinstance(region, dict), 'Continuous read region must be an object')
+            start, end = region.get('start'), region.get('end')
+            require(integer(start) and integer(end) and 0 <= start < end <= len(text),
+                    'Continuous read regions must be valid Unicode character indices')
+            require(start >= previous_start and start <= end_read and end > end_read,
+                    'Continuous read regions must cover the source in order without gaps or duplicate regions')
+            checked.append({'start': start, 'end': end})
+            end_read, previous_start = end, start
+        require(end_read == len(text), 'Continuous read regions must cover the complete source through its end')
+        result.update(reason=value['reason'], read_regions=checked)
+    return result
+
+
+def validate_tail_check(value, doc, require, description_intervals):
+    """Validate exact ending and optional final structural identifier."""
+    text, source = doc['text'], json.loads(doc['data'])
+    require(isinstance(value, dict) and value.get('complete') is True
+            and isinstance(value.get('quote'), str) and len(value['quote'].strip()) >= 12
+            and text.rstrip().endswith(value['quote'].rstrip()),
+            'Host must verify the actual final text; incomplete or false tail cannot complete review')
+    if 'paragraph_number' in value:
+        paragraphs = description_intervals(text) if doc['document_type'] == 'description' else {}
+        require(doc['document_type'] == 'description' and paragraphs
+                and integer(value['paragraph_number']) and value['paragraph_number'] == next(reversed(paragraphs)),
+                'Tail paragraph does not match the actual final paragraph')
+    if 'claim_number' in value:
+        require(doc['document_type'] == 'claims' and source.get('claims')
+                and integer(value['claim_number']) and value['claim_number'] == source['claims'][-1]['number'],
+                'Tail claim does not match the actual final claim')
+    return dict(value)
 
 
 def paragraph_intervals(text, e):
@@ -110,23 +172,27 @@ def build(c, host, e):
     if 'source_text_hash' in host:
         e.require(host['source_text_hash'] == doc['text_hash'], 'Host source text hash differs from selected version')
     expected = [r[0] for r in c.execute('SELECT id FROM chunks WHERE document_id=? ORDER BY ordinal', (doc['id'],))]
-    read = host.get('read_chunk_ids')
-    e.require(string_list(read) and len(read) == len(set(read)) and set(read) == set(expected) and expected,
-              'Host must attest reading every actual source chunk exactly once')
-    tail = host.get('tail_check')
-    e.require(isinstance(tail, dict) and tail.get('complete') is True
-              and isinstance(tail.get('quote'), str) and len(tail['quote'].strip()) >= 12
-              and text.rstrip().endswith(tail['quote'].rstrip()),
-              'Host must verify the actual final text; incomplete or false tail cannot complete review')
-    paragraphs = paragraph_intervals(text, e) if doc['document_type'] == 'description' else {}
-    if 'paragraph_number' in tail:
-        e.require(doc['document_type'] == 'description' and paragraphs
-                  and integer(tail['paragraph_number']) and tail['paragraph_number'] == next(reversed(paragraphs)),
-                  'Tail paragraph does not match the actual final paragraph')
-    if 'claim_number' in tail:
-        e.require(doc['document_type'] == 'claims' and source.get('claims')
-                  and integer(tail['claim_number']) and tail['claim_number'] == source['claims'][-1]['number'],
-                  'Tail claim does not match the actual final claim')
+    scope = e.run_info(c).get('scope', {})
+    strict = not scope.get('synthetic', False) or scope.get('require_whole_patent_review') is True
+    whole_review = None
+    if 'whole_document_review' in host:
+        whole_review = validate_whole_document_review(host['whole_document_review'], doc, e.require)
+        e.require(expected, 'Whole source has no stored compatibility coverage spans')
+        read = expected
+        if 'read_chunk_ids' in host:
+            declared = host['read_chunk_ids']
+            e.require(string_list(declared) and len(declared) == len(set(declared)) and set(declared) == set(expected),
+                      'Legacy read_chunk_ids conflict with complete whole-document review')
+    else:
+        e.require(not strict, 'Whole-document review is required for this run; legacy chunk attestations alone are insufficient')
+        read = host.get('read_chunk_ids')
+        e.require(string_list(read) and len(read) == len(set(read)) and set(read) == set(expected) and expected,
+                  'Host must attest reading every actual source chunk exactly once')
+    author = host.get('analysis_author')
+    e.require(not strict or isinstance(author, str) and author.strip(), 'Whole-patent analysis requires analysis_author')
+    if author is not None:
+        e.require(isinstance(author, str) and author.strip(), 'analysis_author must be a nonempty string')
+    tail = validate_tail_check(host.get('tail_check'), doc, e.require, e.description_intervals)
     declared=host.get('support_documents',[])
     e.require(isinstance(declared,list),'support_documents must be an array')
     compact_support=[]
@@ -204,8 +270,10 @@ def build(c, host, e):
     analysis = {'application_id': host['application_id'], 'document_id': doc['id'],
                 'primary_module': host['primary_module'], 'tags': tags,
                 'summary': finding(host.get('summary')), 'fields': converted, 'evidence': evidence,
-                'completed_chunk_ids': read, 'limitations': limitations,
+                'completed_chunk_ids': read, 'limitations': limitations, 'tail_check': tail,
                 'host_review_method': 'Full primary original text read by host; optional same-publication description regions read only as needed; selected spans materialized mechanically'}
+    if whole_review:analysis['whole_document_review']=whole_review
+    if author is not None:analysis['analysis_author']=author
     if supports:analysis['support_documents']=supports
     review = {'application_id': host['application_id'], 'document_id': doc['id'],
               'publication_number': doc['publication_id'], 'read_chunk_ids': read, 'tail_check': tail,
@@ -214,7 +282,9 @@ def build(c, host, e):
               'status': 'host_review_materialized_pending_formal_import',
               'semantic_decisions_authored_by_host': True,
               'support_documents':supports,
-              'reading_attestation_limit': 'Chunk/tail checks validate source identity and host attestations; they cannot prove semantic reading or replace independent review.'}
+              'reading_attestation_limit': 'Whole-document, coverage and tail checks validate source identity and host attestations; they cannot prove semantic understanding or replace independent review.'}
+    if whole_review:review['whole_document_review']=whole_review
+    if author is not None:review['analysis_author']=author
     return analysis, review
 
 

@@ -1,17 +1,27 @@
 ---
 name: patent-perspectives
-description: Profile a target company's public patents, clarify analysis scope and priorities in one consolidated round, then build an evidence-backed patent report with product lines, technical timelines, and management, R&D and IP views. Use for company or competitor patent portfolio analysis.
+description: Research a selected company through management, R&D and IP views, supporting project exploration, competition, company profiling, route selection and conditional forecasting, with cross-industry transfer and readiness analysis. Also adapt to design-patent invalidation decisions when explicitly requested.
 ---
 
-# 专利棱镜｜企业专利三视角分析
+# 专利三视角
 
-参赛准备版本：2026.10.26-rc1。更新日期：2026-10-26。
+技能版本：`2026.11.02-unified1-pub1`（可用运行入口 `--version` 核对；研究流程基线为统一版，pub1补充公开许可与发行打包）。
 
 把同一套公开专利证据转化为管理层、研发和知识产权三种解读，交付离线互动报告、一份可编辑的《分析记录与后续补充说明》，以及可复用的专利、市场和分析数据包。原始事实、计算结果与分析推断分别保存；角色切换不得改变底层事实。
 
+先识别研究对象。公司或产品线专利研究沿用下述概览与范围确认；用户已授权的外观设计决定书研究，直接采用既定案件、争点和成果范围，按[案件研究适配](references/whole-patent-research.md#已授权的外观设计决定书研究)执行，不要求补一个目标公司，不套用技术权利要求数据流程。已有任务直接复用已明确的范围。
+
+需要解释技术变化、比较路线、判断行业位置或总结跨案条件时，读取[共同问题与比较研究](references/comparative-research.md)。先确定值得回答的问题，再选择比较材料；技术贡献、权利控制、产品表现是不同判断维度，管理层、研发、知识产权是不同读者角色，两组维度不能互相替代。探索性研究可以交付理解、排除错误解释或缩小不确定范围，不强制给出经营决策。
+
+技术申请需要把研究问题、术语、逐项比较、路线关系与关键发现连成可追溯成果时，读取[问题驱动研究工作流](references/research-workflow.md)。沿用同一组研究问题ID与独立复核；这项增强补充研究底稿和阅读入口，不替代单件理解、专题审阅或既有公司研究模块。
+
+需要围绕所选公司做立项探索、竞争格局、公司画像、路线选择或技术预测时，读取[公司研究任务](references/company-research-tasks.md)。按实际问题选择任务；明确要求完整五类研究时覆盖五类。任务共用既有主体、原文和研究问题，不另造相互矛盾的事实。对冻结为主要研究对象的每条路线，按[路线迁移与研判](references/route-assessment.md)分别完成跨行业借鉴、条件预测、成熟度和选型；证据不足也须明确缺口及验证方法。
+
+行业研究采用[证据矩阵与阅读规范](references/evidence-matrix.md)，提供公司×技术方向矩阵和选定案例地域表，沿用浅蓝白色及来源点击追溯。新增方法和实现独立编写，外部组合包只作任务和展示思路参考，不导入其提示词、分类字典、评分公式、模板、代码或案例事实。
+
 ## 先概览，再集中确认
 
-首次执行先读 [公司概览与集中确认](references/company-intake.md)。只有目标公司无法识别时才先问公司名称或消歧问题；不要一开始就抛出完整问卷。
+公司或产品线研究首次执行先读 [公司概览与集中确认](references/company-intake.md)。只有该任务确需目标公司且无法识别时才先问名称或消歧问题；不要一开始就抛出完整问卷。
 
 先利用已授权检索和企业公开资料，简要了解主体、专利规模、类型、地域、年度分布、主要产品/技术线索，以及数据可取得程度。明确哪些是检索匹配文献数、哪些已去重为独立申请；这一步是概览，不逐件下载全量技术全文，也不默认启动全量深析。
 
@@ -39,10 +49,12 @@ description: Profile a target company's public patents, clarify analysis scope a
 
 导入前读 [data-contract.md](references/data-contract.md)。宿主代理承担 MCP 调用、技术理解和角色分析；脚本承担 SQLite 存储、号码与版本关联、覆盖率、统计、校验、页面和打包。脚本不调用额外模型 API。
 
+开始阅读前读[整篇分析与专题研究](references/whole-patent-research.md)。默认一件专利一个完整任务包，由同一分析者连贯理解所选版本，不能按固定字符数切成独立小任务后拼接结论。并行处理不同专利；长文仍保持同一任务和一份完整解释。保留原文锚点及旧数据，不把分段编号当作理解质量证明。
+
 - 独立申请为逐件技术分析单位；公开及授权文献保留为版本，各国同族成员单独保存。
 - 官方国家登记成员与另一次独立申请须区分。只有 [national-registration.md](references/national-registration.md) 的同记录官方身份取证通过后才追加规范单位映射，保留原记录、地域、权属和法律观察及计数桥接；不按一般同族合并，也不把EP全文变成DE全文。
 - 发明、实用新型优先取得并读完同件完整权利要求；术语、结构、步骤或工作机制不足以理解时，再补读同一公开号说明书的相关段落。完整权利要求不可得时，回退同件完整说明书；两者均不可得则官方同件补证，仍缺则未完成。关闭自动同族替代。
-- 摘要、部分权利要求、截断全文及解析失败不能满足完成条件。主文本逐段处理并核对全部分段覆盖；按需补读的说明书只记录实际已读区间，不冒称全文已读，也不为填补问题、功效空值而强读全文。此前已完成且仍有效的完整说明书分析保留。
+- 摘要、部分权利要求、截断全文及解析失败不能满足完成条件。主文本以整篇材料提供并记录实际完整阅读；超长文献在同一任务内连续阅读，保留完整覆盖及前后关系，不能静默截断。按需补读的说明书只记录实际已读区间，不冒称全文已读，也不为填补问题、功效空值而强读全文。此前已完成且仍有效的完整说明书分析保留。
 - 官方本件接口不能取得正文时，可按 [original-document-claims.md](references/original-document-claims.md) 核验原始公报PDF镜像。单独标明第三方托管、真实公报与内附文献身份，逐页核对完整权利要求；不能采用镜像网页翻译或借同族文本替代。正式页面保留离线原PDF及页码定位。
 - 仅依据权利要求时，明确标记依据，分析组成、连接、步骤、条件和范围；未披露的问题、功效、实施细节保留未知。
 - 外观设计单列目录、著录和可取得的图片，不纳入技术全文分母。
@@ -52,17 +64,25 @@ description: Profile a target company's public patents, clarify analysis scope a
 
 分析前读 [analysis-roles.md](references/analysis-roles.md)。先做逐件理解，按“产品大类→产品线→技术大类→实现方向”组织；产品用途不明确时单列。计算年度、类型、地域与状态交叉统计，再形成角色结论。分类名称从本次原文产生，不复用其他公司的厨房电器等具体分类。
 
+围绕用户目标及初步事实建立研究问题，单件分析经独立原文复核后形成专题回答。按[比较研究方法](references/comparative-research.md)选择真实可比方案、检验关键条件及其他解释，对缺口定向补查。问题及答案按[研究质量契约](references/whole-patent-research.md#研究质量记录)保存；外部产品资料与案件比较另按实际来源记录，不伪造技术申请或质量字段。三个角色各有一条结论、存在引文或图谱，都不能代替专题研究完成，不为填满结果制造关联、反例或优势。
+
+启用问题驱动研究工作流时，以本次问题确定比较维度和术语适用范围，逐申请、逐版本记录已披露、未披露、未取得与不适用；技术关系区分并行、条件不同、结构变化和有额外历史证据的继承或替代。发现解释具体用途、其他解释和待查事项；同一发现的角色解读共用事实，不因角色变化提高确定性。
+
 管理层看规模、类型与地域结构、产品线和技术变化；研发看结构、步骤、条件与路线差异；知识产权看权利要求、关联申请、版本与法律状态。管理层事实区域标题固定为“关键事实”，正文讲已观察事实，不写指挥读者做事的套话。结论与条件必须来自证据，不把相似度直接转成侵权或有效性结论。
 
 权利要求要素对照及公开/授权版本变化只在专利工程师（知识产权，`ip`）界面展示，管理层和研发界面不出现对应板块、导航或选择控件。按[要素对照与版本证据](references/claim-comparison.md)准备真实可比案件，每格定位同件同版本原文；资料不足时区分未披露与未取得，不生成缺证的版本变化结论。普通研发技术路线比较仍按原文解释结构与过程。
 
 ## 运行与正式交付
 
-运行入口为 scripts/patent_perspectives.py；先阅读其 --help 及所用子命令帮助，按当前 CLI 的输入格式调用，不猜测参数。可用命令包括 init、entities-import、scope-confirm、capability-import、search-import、query-complete、document-import、export-work、analysis-import、insights-import、relations-import、validate、status、render 和 package。
+运行入口为 scripts/patent_perspectives.py；先阅读其 --help 及所用子命令帮助，按当前 CLI 的输入格式调用，不猜测参数。除资料、分析及角色结论导入外，使用 research-plan-import 保存研究问题；复核者开始阅读时以 export-quality-work --review-packets DIR 导出版本清单与逐件完整原文包，先独立阅读原文，再打开另存的初稿对照。复核者可以引用初稿遗漏的同件原文，独立证据留在复核记录中，不先改初稿来掩盖问题。按实际待审指纹提交 semantic-review-import 和 research-review-import，再运行 validate、status 及 render。分析或资料变化后重新审阅，不能给旧结论换上新指纹。
 
-通过 status 与 validate 追踪清单对账、文本依据、逐件分析、证据及关系。中断后从缓存续跑。语义复核独立抽查跨模块样本，发现系统性问题时重处理受影响批次。
+问题驱动底稿使用 research-import 和 research-export。首次导入没有研究计划时按同名问题建立计划；已有计划只核对复用，冲突须显式修订计划并说明原因。先保存 partial/pending 底稿，完成独立审阅后再提交 answered；answered 须与当前通过审阅的限定答案一致。增强问题的 question_ids 与正文 research_question_ids 使用同一身份，不能另造一套“已回答”绕过质量验收。
 
-用户要求全量时，只有全量通过才能标记全量完成。仍有缺口时保留真实状态和可恢复数据；用户明确要求跳过具体事项或继续按可核验成果交付时，按[分析记录与后续补充](references/run-status-and-issues.md)整理问题，再按[已审阅例外交付](references/reviewed-delivery.md)生成和审阅冻结契约，用 render --delivery-contract 实际生成成果。不能把未读或未核验事项冒充完成。法律状态核验、同族和图片覆盖分别记录，辅助字段未知不替代全文完成规则。
+通过 status 与 validate 分别追踪目录与证据完整性、单件理解复核、专题研究完成。中断后从缓存续跑。真实运行要求每件纳入的技术申请有当前有效的独立复核，研究计划中的问题有经独立检查的可证回答；未解决的问题保留但不计全部研究完成。旧分析不删除，也不因已有完成标签而自动获得新质量记录。程序核验记录、证据与版本一致性，不能证明模型真正读懂或给出准确率；发现系统性误读时重处理受影响记录。
+
+正式报告须把每个完成专题的限定答案、比较理由和成立条件写入适用角色的正文，用 research_question_ids 及对应证据关联研究底稿；render 检查是否漏题、缺证或沿用过期版本。按[报告组织](references/reporting.md)映射到现有阅读路径，不以后台已完成记录代替读者实际看到的研究成果。
+
+用户要求全量时，只有全量通过才能标记全量完成。仍有缺口时保留真实状态和可恢复数据；用户明确要求跳过具体事项或继续按可核验成果交付时，按[分析记录与后续补充](references/run-status-and-issues.md)冻结交付边界与例外，交付有明确统计分母的成果，不能把未读或未核验事项冒充完成。法律状态核验、同族和图片覆盖分别记录，辅助字段未知不替代全文完成规则。
 
 阶段性交付、过程问题、跳过事项和增量变化集中写入同一份《分析记录与后续补充说明》，不放进互动报告的板块、导航、按钮或进度卡。后续补充优先复用有效证据；按[增量分析](references/incremental-analysis.md)记录真实快照、观察时间、可比范围及受影响结论，不能将界面改版、范围变化或补齐旧资料冒充新公开申请。
 

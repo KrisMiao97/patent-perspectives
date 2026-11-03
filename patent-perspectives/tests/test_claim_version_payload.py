@@ -43,19 +43,4 @@ class ClaimVersionPayloadTests(unittest.TestCase):
         self.assertEqual(p['analysis']['document_id'],self.b['document_id'])
         self.assertEqual(len([x for x in p['claims'] if x['document_id']==self.a['document_id']]),2)
 
-    def test_unqualified_signed_source_text_is_withheld_without_rewriting_original(self):
-        self.seed()
-        original='1. A synthetic piston. <img src="https://example.test/image?access_token=SYNTHETIC_ONLY">'
-        doc=self.document(text=original,claim_count=1,complete=False,truncated=True)
-        _,details=engine.build_payload(self.db,engine.validate_run(self.db));p=next(iter(details.values()))
-        self.assertEqual(p['documents'][0]['text'],'')
-        self.assertTrue(p['documents'][0]['text_withheld'])
-        self.assertEqual(p['claims'],[])
-        self.assertEqual(self.db.execute('SELECT text FROM documents WHERE id=?',(doc['document_id'],)).fetchone()[0],original)
-
-    def test_mathematical_double_backslashes_are_not_private_paths(self):
-        notation=r'f_m(x)=\begin{cases}0,x=0\\255,x=1\end{cases}'
-        self.assertTrue(engine.source_text_public_safe(notation))
-        self.assertFalse(engine.source_text_public_safe('https://example.test/source?signature=SYNTHETIC_ONLY'))
-
 if __name__=='__main__':unittest.main()

@@ -131,11 +131,13 @@ class IntegrityTests(unittest.TestCase):
         with self.assertRaises(engine.ValidationError):
             self.analyze(doc, application_id=ids[1])
 
-    def test_every_long_document_chunk_is_required(self):
+    def test_long_document_is_one_complete_reading_unit(self):
         self.seed()
         text = "Synthetic description: synthetic piston.\n" + ("A distinct synthetic technical paragraph. " * 700)
         doc = self.document(document_type="description", text=text)
-        self.assertGreater(len(doc["chunk_ids"]), 2)
+        self.assertEqual(len(doc["chunk_ids"]), 1)
+        span=self.db.execute("SELECT start,end FROM chunks WHERE document_id=?",(doc["document_id"],)).fetchone()
+        self.assertEqual(tuple(span),(0,len(text)))
         with self.assertRaises(engine.ValidationError):
             self.analyze(doc, completed_chunk_ids=doc["chunk_ids"][:-1])
         with self.assertRaises(engine.ValidationError):
