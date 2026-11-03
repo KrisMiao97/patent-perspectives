@@ -5,6 +5,7 @@ import argparse, collections, datetime as dt, hashlib, importlib.util, json, re,
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 SCHEMA_VERSION=1
+SKILL_RELEASE="2026.11.02-unified1-pub1"
 ROLES=("management","rd","ip")
 FIELDS=("application_field","technical_problem","technical_means","components","relationships","steps","conditions","claimed_effects")
 SECRET=re.compile(r"^((?:x[-_])?api[_-]?key|authorization|(?:access[_-]?|refresh[_-]?)?token|password|(?:client[_-]?)?secret|bearer)$",re.I)
@@ -101,6 +102,7 @@ def db_open(f):
     row=c.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone()
     require(not row or json.loads(row[0])==SCHEMA_VERSION,"Unsupported database schema")
     set_meta(c,"schema_version",SCHEMA_VERSION)
+    research_quality_module().initialize(c)
     return c
 def set_meta(c,k,v): c.execute("INSERT OR REPLACE INTO meta VALUES(?,?)",(k,dump(v)))
 def get_meta(c,k,default=None):
@@ -110,6 +112,26 @@ def event(c,k,v): c.execute("INSERT INTO events(created_at,kind,data) VALUES(?,?
 def rows_data(c,table): return [json.loads(r[0]) for r in c.execute("SELECT data FROM "+table)]
 def run_info(c):
     r=get_meta(c,"run"); require(r,"Run is not initialized; use init first"); return r
+def research_quality_module():
+    name="patent_perspectives_research_quality"
+    if name not in sys.modules:
+        spec=importlib.util.spec_from_file_location(name,Path(__file__).with_name("research_quality.py"))
+        module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)
+    return sys.modules[name]
+def research_quality_context():
+    return {name:globals()[name] for name in ("require","dump","digest","sanitized","event","check_refs","population_hash","analysis_is_current","included_applications","run_info","make_evidence","document_is_eligible","validate_support_evidence_locator")}
+def whole_review_module():
+    name="patent_perspectives_whole_review"
+    if name not in sys.modules:
+        spec=importlib.util.spec_from_file_location(name,Path(__file__).with_name("materialize_review.py"))
+        module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module)
+    return sys.modules[name]
+def whole_review_required(c):
+    scope=run_info(c)["scope"]
+    return not scope.get("synthetic",False) or scope.get("require_whole_patent_review") is True
+def research_quality_required(c):
+    scope=run_info(c)["scope"]
+    return not scope.get("synthetic",False) or scope.get("require_research_quality") is True
 def population_review_required(c):
     scope=run_info(c)["scope"]
     return scope.get("require_population_review",not scope.get("synthetic",False)) is True
@@ -846,6 +868,7 @@ def claim_blocks(text):
         out.append({"number":int(m.group(1)),"text":text[start:end],"start":start,"end":end})
     return out
 def chunk_plan(text,size=6000,overlap=240):
+    """Legacy span reconstruction only; new imports use one whole source span."""
     spans=[]; start=0
     while start<len(text):
         end=min(len(text),start+size)
@@ -920,7 +943,9 @@ def import_document(c,p):
     c.execute("INSERT INTO documents VALUES(?,?,?,?,?,?,?)",(docid,appid,pn,p["document_type"],text,digest(text),dump(source)))
     ids=[]
     if qualified:
-        for i,(start,end) in enumerate(chunk_plan(text)):
+        # One source document is one reading unit. Existing multi-span records
+        # remain untouched so historical evidence and completion IDs stay valid.
+        for i,(start,end) in enumerate([(0,len(text))]):
             cid=docid+"-c"+str(i).zfill(4);ids.append(cid)
             c.execute("INSERT INTO chunks VALUES(?,?,?,?,?)",(cid,docid,i,start,end))
     event(c,"document-import",{"document_id":docid,"qualified":qualified,"application_id":appid})
@@ -1113,6 +1138,7 @@ def validate_finding(value,allowed,label):
         require(refs and set(refs)<=allowed,"Missing/invalid evidence in "+label)
         require(finding.get("kind","disclosed") in ("disclosed","inference"),"Finding kind must be disclosed/inference")
 def import_analysis(c,p):
+    p=dict(p)
     appid=p.get("application_id");docid=p.get("document_id")
     require(appid and docid,"Analysis application_id/document_id required")
     require(application_population_status(c,appid)=="included","Candidate application must be included by the population review before technical analysis")
@@ -1123,6 +1149,15 @@ def import_analysis(c,p):
     app=json.loads(c.execute("SELECT data FROM applications WHERE id=?",(appid,)).fetchone()[0])
     require(app["patent_type"] in ("invention","utility_model"),"Technical analysis is only for invention/utility_model")
     expected={x[0] for x in c.execute("SELECT id FROM chunks WHERE document_id=?",(docid,))}
+    strict=whole_review_required(c)
+    whole=p.get("whole_document_review")
+    if strict or whole is not None:
+        require(whole is not None,"Whole-patent analysis requires whole_document_review; legacy records remain stored but need an explicit current review")
+        reviewer=whole_review_module()
+        p["whole_document_review"]=reviewer.validate_whole_document_review(whole,doc,require)
+        p["tail_check"]=reviewer.validate_tail_check(p.get("tail_check"),doc,require,description_intervals)
+        require(isinstance(p.get("analysis_author"),str) and p["analysis_author"].strip(),"Whole-patent analysis requires its actual analysis_author")
+        if "completed_chunk_ids" not in p:p["completed_chunk_ids"]=sorted(expected)
     supplied=p.get("completed_chunk_ids",[])
     require(isinstance(supplied,list) and len(supplied)==len(set(supplied)) and set(supplied)==expected and expected,
             "Every source chunk must be processed exactly once")
@@ -1147,6 +1182,15 @@ def import_analysis(c,p):
     validate_finding(p.get("summary"),ids,"summary")
     require(p.get("summary"),"Evidence-backed summary required")
     fields=p.get("fields",{});require(isinstance(fields,dict),"fields must be object")
+    if strict or whole is not None:
+        require(set(fields)==set(FIELDS) and all(isinstance(v,list) for v in fields.values()),"All eight technical fields must be arrays; undisclosed fields stay empty with limitations")
+        require(isinstance(p.get("limitations"),list) and all(isinstance(x,str) and x.strip() for x in p["limitations"]),"Limitations must be an array of explicit statements")
+        require(all(fields.values()) or p["limitations"],"Explain fields without disclosed findings in limitations")
+        for finding in [p["summary"]]+[item for values in fields.values() for item in values]:
+            require(isinstance(finding,dict) and isinstance(finding.get("text"),str) and finding["text"].strip(),"A finding needs a nonempty explanation")
+            if finding.get("kind")=="inference":
+                cond=finding.get("conditions")
+                require(isinstance(finding.get("basis"),str) and finding["basis"].strip() and ((isinstance(cond,str) and cond.strip()) or (isinstance(cond,list) and cond and all(isinstance(x,str) and x.strip() for x in cond))),"An inference needs explicit basis and conditions")
     for k,v in fields.items():
         require(k in FIELDS,"Unknown technical field: "+k); validate_finding(v,ids,k)
     # Claimed effects are disclosures, never measured commercial performance.
@@ -1179,8 +1223,18 @@ def population_hash(c):
     for review in reviews:review.pop("reviewed_at",None)
     registration_records=registration_module().records(c)
     return digest({"applications":apps,"publications":pubs,"analyses":analyses,"cutoff":run["as_of_date"],"entity_hash":run.get("entity_snapshot_hash"),"population_review_required":population_review_required(c),"population_reviews":sorted(reviews,key=lambda r:r["application_id"]),"query_plan_contract":get_meta(c,"query_plan_contract"),"query_sets":sorted(rows_data(c,"query_sets"),key=lambda s:s["id"]),"bibliography_conflicts":sorted(bibliography_conflicts(c),key=dump),"document_review_ids":sorted(r["id"] for r in optional_rows_data(c,"document_reviews")),"auxiliary_source_ids":sorted(r["id"] for r in auxiliary_module().records(c)),**({"registration_members":registration_records} if registration_records else {}),**({"analysis_scope":{k:run["scope"][k] for k in ("analysis_window","selection") if k in run["scope"]}} if any(k in run["scope"] for k in ("analysis_window","selection")) else {})})
+def research_module():
+    spec=importlib.util.spec_from_file_location("pp_research_workflow",Path(__file__).with_name("research_workflow.py"))
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    return module
+def research_context():
+    return argparse.Namespace(**globals())
+def active_relations(c):
+    retired=set(get_meta(c,"research_retired",{}).get("relation_ids",[]))
+    return [r for r in rows_data(c,"relations") if r["id"] not in retired]
 def active_insights(c):
-    values=rows_data(c,"insights")
+    retired=set(get_meta(c,"research_retired",{}).get("insight_ids",[]))
+    values=[i for i in rows_data(c,"insights") if i["id"] not in retired]
     if run_info(c)["scope"].get("selection") is None:return values
     current=population_hash(c)
     scope=insight_selection_scope(c)
@@ -1220,8 +1274,17 @@ def import_relations(c,payload):
                 safe_url(p["source_url"])
         c.execute("INSERT OR REPLACE INTO relations VALUES(?,?)",(p["id"],dump(sanitized(p))))
     event(c,"relations-import",{"count":len(as_list(payload))});return {"relations_imported":len(as_list(payload))}
-def export_work(c,output):
+def export_work(c,output,max_primary_characters=None):
+    require(max_primary_characters is None or max_primary_characters>0,"Whole-document capacity limit must be positive")
     path=Path(output);path.parent.mkdir(parents=True,exist_ok=True);count=0
+    deferred_path=path.with_suffix(path.suffix+".deferred.json")
+    for target in (path,deferred_path):
+        for database in c.execute("PRAGMA database_list"):
+            if not database[2]:continue
+            for protected in (Path(database[2]),Path(database[2]+"-wal"),Path(database[2]+"-shm"),Path(database[2]+"-journal")):
+                same=target.resolve()==protected.resolve() or (target.exists() and protected.exists() and target.samefile(protected))
+                require(not same,"Work export cannot overwrite its database or transaction files")
+    deferred=[]
     included={a["id"] for a in included_applications(c)}
     rejections=document_rejection_index(c)
     with path.open("w",encoding="utf-8") as f:
@@ -1230,7 +1293,9 @@ def export_work(c,output):
             meta=json.loads(app["data"])
             if meta["patent_type"] not in ("invention","utility_model"): continue
             existing=c.execute("SELECT * FROM analyses WHERE application_id=?",(app["id"],)).fetchone()
-            if existing and analysis_is_current(c,existing,rejections): continue
+            if existing and analysis_is_current(c,existing,rejections):
+                existing_data=json.loads(existing["data"])
+                if not whole_review_required(c) or existing_data.get("whole_document_review"):continue
             candidates=list(c.execute("SELECT * FROM documents WHERE application_id=? ORDER BY CASE document_type WHEN 'claims' THEN 0 ELSE 1 END,id",(app["id"],)))
             qualified=[d for d in candidates if document_is_eligible(c,d,rejections)]
             if not qualified: continue
@@ -1238,12 +1303,21 @@ def export_work(c,output):
             support_candidates=[{"document_id":d["id"],"publication_number":d["publication_id"],"source":json.loads(d["data"]),
                  "reading_scope":"available_for_targeted_reading_only"} for d in qualified if doc["document_type"]=="claims" and d["document_type"]=="description"
                  and d["publication_id"]==doc["publication_id"] and source_language(json.loads(d["data"])["language"])==source_language(source["language"])]
-            chunks=[{"id":r["id"],"ordinal":r["ordinal"],"start":r["start"],"end":r["end"],"text":doc["text"][r["start"]:r["end"]]} for r in c.execute("SELECT * FROM chunks WHERE document_id=? ORDER BY ordinal",(doc["id"],))]
+            if max_primary_characters is not None and len(doc["text"])>max_primary_characters:
+                deferred.append({"application_id":app["id"],"document_id":doc["id"],"character_count":len(doc["text"]),"reason":"whole_document_exceeds_requested_character_limit","next_action":"Use a suitable context or the same-reader continuous whole-document review; never truncate or split into independent analyses."})
+                continue
+            legacy_ids=[r[0] for r in c.execute("SELECT id FROM chunks WHERE document_id=? ORDER BY ordinal",(doc["id"],))]
+            # Keep anchors but include the source text only once in the packet.
+            packet_source=dict(source)
+            packet_source["claims"]=[{k:v for k,v in item.items() if k!="text"} for item in source.get("claims",[])]
             f.write(dump({"application_id":app["id"],"patent":meta,"document_id":doc["id"],
-                "source":source,"chunks":chunks,"support_document_candidates":support_candidates,
-                "instructions":"Read ALL primary chunks and the actual tail. Default complete claims first; only if technical terms, structures, steps or mechanisms need clarification, read relevant same-publication description regions and record support_documents/read_regions with each evidence.document_id. Do not read the whole description merely to fill unknown problems/effects. Unknown fields stay empty; description-only remains the fallback when complete claims are unavailable. Claims-only does not establish undisclosed examples or measured effects."})+"\n")
+                "source":packet_source,"reading_unit":"whole_patent","primary_document":{"document_id":doc["id"],"text":doc["text"],"source_text_hash":doc["text_hash"],"character_count":len(doc["text"]),"claim_index":packet_source["claims"]},
+                "material_availability":{"primary_document":"included_in_full","description":"included_as_primary" if doc["document_type"]=="description" else ("available_in_run_not_embedded" if support_candidates else "not_acquired"),"figures":"not_embedded_check_original_publication_and_run_materials"},
+                "coverage":{"legacy_chunk_ids":legacy_ids},"support_document_candidates":support_candidates,
+                "instructions":"One patent is one coherent analysis task owned by one reader. Read the full selected primary document and actual tail; use a clean context with necessary product background. Assess capacity including figures, reasoning and output; character count is not a model token guarantee. If too long, preserve the same task and record continuous reading coverage and cross-section dependencies, never silently truncate or distribute independent fragments. Default complete claims first; for mechanism questions read relevant same-publication description and figures and record actual support_documents/read_regions. Claims-only is not full-description or image review. Save whole_document_review, tail_check, analysis_author, all eight fields with evidence, and unresolved questions. Independent semantic review and planned cross-patent research are separate completion gates."})+"\n")
             count+=1
-    return {"work_items":count,"output":str(path)}
+    deferred_path.write_text(json.dumps(deferred,ensure_ascii=False,indent=2),encoding="utf-8")
+    return {"work_items":count,"output":str(path),"deferred_items":len(deferred),"deferred_output":str(deferred_path),"reading_unit":"whole_patent"}
 
 def coverage(c):
     run=run_info(c);raw_apps=included_source_records(c);registration=registration_state(c,raw_apps)
@@ -1406,7 +1480,7 @@ def validate_run(c):
                     except (ValidationError,KeyError,TypeError) as error:check(False,"supporting_evidence_locator",eid+":"+str(error))
     insights=active_insights(c)
     historical_insights=len(rows_data(c,"insights"))-len(insights)
-    if historical_insights:warnings.append({"code":"historical_role_insights_retained","detail":str(historical_insights)+" previous role insights remain stored but are inactive for this frozen selection. Current evidence-backed insights are required for all three roles."})
+    if historical_insights:warnings.append({"code":"historical_role_insights_retained","detail":str(historical_insights)+" previous role insights remain stored but are inactive for the current research questions or frozen selection. Current evidence-backed insights are required for all three roles."})
     if cov["technical_applications"]:
         for role in ROLES: check(any(i["role"]==role for i in insights),"missing_role_insights",role)
     current_population=population_hash(c)
@@ -1420,7 +1494,7 @@ def validate_run(c):
     moduleids={"module:"+digest(json.loads(r["data"])["primary_module"])[:12] for r in analyses.values()}
     endpoints=appids|pubs|set(evidence)|moduleids|{e["id"] for e in rows_data(c,"entities")}|{i["id"] for i in insights}
     hidden=(set(states)-appids)|{r["id"] for r in c.execute("SELECT id,application_id FROM publications") if r["application_id"] not in appids}|{r["id"] for r in c.execute("SELECT id,application_id FROM evidence") if r["application_id"] not in appids}
-    for relation in rows_data(c,"relations"):
+    for relation in active_relations(c):
         if relation["source"] in hidden or relation["target"] in hidden or set(relation.get("evidence_ids",[]))&hidden:continue
         check(relation["source"] in endpoints and relation["target"] in endpoints,"relation_endpoint_missing",relation["id"])
         for eid in relation.get("evidence_ids",[]): check(eid in evidence,"relation_evidence_missing",relation["id"])
@@ -1428,6 +1502,14 @@ def validate_run(c):
     if cov["document_rejection_reviews"]:warnings.append({"code":"source_rejections_retained","detail":"Host-observed source defects are retained with exact source evidence; rejected text cannot support completion, including identical text under a new version label."})
     if cov["legal_status_known"]<cov["applications"]: warnings.append({"code":"legal_status_partial","detail":"Unknown status stays unknown; technical completeness is independent."})
     warnings.append({"code":"population_boundary","detail":"Completeness is bounded by frozen entities, queries, data sources and publication cutoff; unpublished applications are unobservable."})
+    if research_quality_required(c):
+        quality=research_quality_module().validate(c,research_quality_context())
+        errors.extend(quality["errors"]);warnings.extend(quality["warnings"])
+        cov["research_quality"]=quality["coverage"]
+        for appid,ana in analyses.items():
+            p=json.loads(ana["data"])
+            check(bool(p.get("whole_document_review")) and bool(p.get("analysis_author")),"whole_document_review_missing",appid)
+    errors.extend(research_module().check(c,research_context()))
     status="complete" if not errors else "incomplete"
     return {"schema_version":SCHEMA_VERSION,"run_id":run["run_id"],"status":status,"coverage":cov,"errors":errors,"warnings":warnings}
 def status_run(c):
@@ -1447,7 +1529,7 @@ def text_of(value):
     return str(value)
 def build_payload(c,report,local_image_paths=None,document_image_records=None,original_document_records=None):
     run=run_info(c);cov=report["coverage"];run=dict(run)
-    run.update({"status":report["status"],"coverage":cov,"completion":cov["technical_completion"],
+    run.update({"status":report["status"],"skill_release":SKILL_RELEASE,"coverage":cov,"completion":cov["technical_completion"],
       "limitations":run.get("limitations",[])+[w["detail"] for w in report["warnings"]]})
     entities=rows_data(c,"entities");raw_apps=included_source_records(c);registration=registration_state(c,raw_apps)
     memberids={m["member_application_id"] for m in registration["active"]};apps=[a for a in raw_apps if a["id"] not in memberids];appids={a["id"] for a in apps}
@@ -1457,7 +1539,7 @@ def build_payload(c,report,local_image_paths=None,document_image_records=None,or
     for item in aux_items:aux_by_app[item["application_id"]].append(item)
     rejections=document_rejection_index(c)
     analyses={r["application_id"]:json.loads(r["data"]) for r in c.execute("SELECT * FROM analyses") if r["application_id"] in appids and analysis_is_current(c,r,rejections)}
-    modules=collections.Counter(); patents=[]; details={}; relations=rows_data(c,"relations")
+    modules=collections.Counter(); patents=[]; details={}; relations=active_relations(c)
     date_conflicts=collections.defaultdict(list)
     for conflict in application_date_conflicts(c):
         date_conflicts[conflict["application_id"]].append(conflict)
@@ -1491,19 +1573,15 @@ def build_payload(c,report,local_image_paths=None,document_image_records=None,or
         documents=[];allclaims=[];images=[];embedded_images=[]
         for row in c.execute("SELECT * FROM documents WHERE application_id=? ORDER BY id",(a["id"],)):
             sd=json.loads(row["data"])
-            usable=document_is_eligible(c,row,rejections)
-            safe_text=source_text_public_safe(row["text"])
-            require(not usable or safe_text,"Qualified source contains private acquisition data; review source before public delivery")
             documents.append({"id":row["id"],"publication_number":row["publication_id"],"document_type":row["document_type"],
               "language":sd["language"],"version":sd["version"],"source_url":sd["source_url"],
               "source_provider":sd["source_provider"],"complete":document_is_eligible(c,row,rejections),
               "structurally_qualified":sd["qualified"],"rejection_review_ids":rejections.get(document_rejection_key(row),[]),
-              "text_format_note":sd.get("text_format_note"),"text":row["text"] if safe_text else "",
-              **({"text_withheld":True,"display_notice":"该获取版本未通过正文验收且含临时访问资料，正文留存于原运行；本页面保留身份和拒绝记录，不用作技术结论依据。"} if not safe_text else {}),
+              "text_format_note":sd.get("text_format_note"),"text":row["text"],
               **({"normalization_notice":sd["normalization_notice"]} if sd.get("normalization_notice") else {}),
               **({"original_document":(original_document_records or {}).get(row["id"],sd["verified_original_document"])} if sd.get("verified_original_document") else {})})
             embedded_images.extend(document_image_records.get(row["id"],[]))
-            if row["document_type"]=="claims" and safe_text:
+            if row["document_type"]=="claims":
                 allclaims.extend({**claim,"document_id":row["id"]} for claim in sd.get("claims",[]))
         ev=[json.loads(r["data"]) for r in c.execute("SELECT * FROM evidence WHERE application_id=?",(a["id"],)) if document_is_eligible(c,c.execute("SELECT * FROM documents WHERE id=?",(r["document_id"],)).fetchone(),rejections)]
         for item in aux_by_app[a["id"]]:
@@ -1584,74 +1662,30 @@ def build_payload(c,report,local_image_paths=None,document_image_records=None,or
        "registration_relations":[{"id":m["id"],"source":m["member_application_id"],"target":m["canonical_filing_application_id"],"type":m["relation_type"],"kind":"fact","source_proof":registration_module().public_record(m)["validated_proof"]} for m in registration["active"]],
        "insights":[i for i in active_insights(c) if set(i.get("patent_ids",[]))<=appids],"relations":relations,"detail_shards":{}}
     return payload,details
-def delivery_module():
-    spec=importlib.util.spec_from_file_location("pp_delivery_contract",Path(__file__).with_name("delivery_contract.py"))
-    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-    return module
-
-def delivery_context():
-    return argparse.Namespace(require=require,validate_run=validate_run,run_info=run_info,
-        included_applications=included_applications,sanitized=sanitized)
-
-def report_privacy_module():
-    if hasattr(report_privacy_module,"cached"):return report_privacy_module.cached
-    spec=importlib.util.spec_from_file_location("pp_report_privacy",Path(__file__).with_name("export_reuse.py"))
-    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-    report_privacy_module.cached=module
-    return module
-
-def public_report_data(value):
-    """Remove private acquisition metadata; exact source text is handled separately."""
-    return report_privacy_module().Cleaner().clean(value)
-
-def source_text_public_safe(value):
-    """Do not export access tokens or local paths, nor rewrite source offsets.
-
-    Literal double backslashes in patent mathematical notation are not host paths.
-    """
-    module=report_privacy_module();cleaner=module.Cleaner()
-    if module.URL.sub(lambda m:cleaner.url(m.group(),"source"),value)!=value:return False
-    return not (module.WINDOWS.search(value) or module.UNIX.search(value) or module.INLINE_SECRET.search(value)
-        or re.search(r"(?i)\bBearer\s+[A-Za-z0-9._~+/=-]+",value))
-
-def skill_manifest():
-    root=Path(__file__).resolve().parents[1]
-    return [{"path":p.relative_to(root).as_posix(),"sha256":hashlib.sha256(p.read_bytes()).hexdigest()}
-        for p in sorted(root.rglob("*")) if p.is_file() and "__pycache__" not in p.parts
-        and p.suffix not in (".pyc",".sqlite",".zip")]
-
-def render(c,output,preview=False,report_context=None,delivery_contract=None,analysis_records=None,record_event=True):
+def render(c,output,preview=False,report_context=None):
     """Publish a report only after all data and asset checks succeed."""
     out=Path(output).resolve()
     require(not out.exists() or out.is_dir() and not any(out.iterdir()),"Output directory must be empty; preserve previous frozen delivery")
     out.parent.mkdir(parents=True,exist_ok=True)
-    version_files=skill_manifest()
     with tempfile.TemporaryDirectory(prefix=".patent-report-",dir=out.parent) as temporary:
         draft=Path(temporary)/"report"
-        result=_render_staged(c,draft,preview,report_context,delivery_contract,analysis_records)
-        require(version_files==skill_manifest(),"Skill changed during report generation; retry with a frozen package")
-        (draft/"generated-by.json").write_text(json.dumps({"schema_version":1,
-            "skill_files":version_files,"skill_sha256":digest(version_files),
-            "report_context_sha256":digest(sanitized(report_context or {})),
-            "delivery_contract_sha256":digest(delivery_contract) if delivery_contract else None,
-            "status":result["status"],"applications":result["applications"]},ensure_ascii=False,indent=2),encoding="utf-8")
+        result=_render_staged(c,draft,preview,report_context)
         require(not out.exists() or out.is_dir() and not any(out.iterdir()),"Output changed while rendering; preserve existing delivery")
         if out.exists():out.rmdir()
         draft.replace(out)
     result["output"]=str(out)
-    if record_event:event(c,"render",{"path":str(out),"preview":preview,"status":result["status"]})
+    event(c,"render",{"path":str(out),"preview":preview,"status":result["status"]})
     return result
 
-def _render_staged(c,output,preview=False,report_context=None,delivery_contract=None,analysis_records=None):
+def _render_staged(c,output,preview=False,report_context=None):
     require(not preview or run_info(c)["scope"].get("synthetic") is True,"Test previews are restricted to explicitly synthetic runs")
     report=validate_run(c)
-    require(not (preview and delivery_contract is not None),"Exception delivery cannot use test preview")
-    gate=None
-    if delivery_contract is not None:
-        gate=delivery_module().check(c,delivery_context(),report,delivery_contract,report_context,analysis_records)
-    else:
-        require(analysis_records is None,"Analysis records for exception delivery require a frozen contract")
-        require(preview or report["status"]=="complete","Formal render blocked: full-population gates failed; inspect validate/status")
+    require(preview or report["status"]=="complete","Formal render blocked: full-population gates failed; inspect validate/status")
+    if not preview and research_quality_required(c):
+        spec=importlib.util.spec_from_file_location("patent_perspectives_research_delivery",Path(__file__).with_name("research_delivery.py"))
+        research_delivery=importlib.util.module_from_spec(spec);spec.loader.exec_module(research_delivery)
+        research_delivery.validate(c,insights=active_insights(c),population_hash=population_hash(c),
+            quality=research_quality_module(),require=require,check_refs=check_refs)
     # Required original pixels are checked before creating a delivery folder.
     # Unlike optional representative drawings, these support composed text.
     document_images=document_images_module()
@@ -1662,39 +1696,27 @@ def _render_staged(c,output,preview=False,report_context=None,delivery_contract=
     require(assets.is_dir(),"Panorama assets missing")
     require(not out.exists() or not any(out.iterdir()),"Output directory must be empty; preserve previous frozen delivery")
     out.mkdir(parents=True,exist_ok=True);(out/"data").mkdir(exist_ok=True)
-    for name in ("index.html","style.css","app.js","timeline-zoom.css","timeline-zoom.js","timeline-reading.css","timeline-reading.js","ip-comparison.css","ip-comparison.js"):
+    for name in ("index.html","style.css","app.js","timeline-zoom.css","timeline-zoom.js","timeline-reading.css","timeline-reading.js","ip-comparison.css","ip-comparison.js","industry-research.css","industry-research.js","research.css","research.js"):
         require((assets/name).is_file(),"Missing frontend asset "+name);shutil.copy2(assets/name,out/name)
     auxiliary=auxiliary_module();aux_items=auxiliary.records(c)
     image_paths,unavailable_images=auxiliary.copy_local_images(c,[item for item in aux_items if item["application_id"] in displayed_appids],out,auxiliary_context())
     document_images.copy_verified(embedded_blobs,out,auxiliary_context())
     original_claims_module().copy_verified(original_blobs,out,original_claims_context())
     payload,details=build_payload(c,report,image_paths,embedded_images,original_documents)
-    if gate:
-        delivery_module().apply(payload,report,delivery_contract,gate)
+    payload["research"]=research_module().export(c,research_context())
     spec=importlib.util.spec_from_file_location("patent_perspectives_report_data",pkg/"scripts"/"report_data.py")
     report_data=importlib.util.module_from_spec(spec);spec.loader.exec_module(report_data)
-    protected={key:{"documents":[(d["id"],d.get("text")) for d in item.get("documents",[])],
-        "evidence":[(v["id"],v.get("quote"),v.get("start"),v.get("end")) for v in item.get("evidence",[])]} for key,item in details.items()}
-    # Public source text can legitimately contain LaTeX double backslashes.
-    # Redact acquisition metadata, never reinterpret source notation as a host path.
-    public_payload=public_report_data(payload)
-    for original,clean in zip(payload["patents"],public_payload["patents"]):clean["summary"]=original.get("summary","")
-    public_payload["insights"]=payload["insights"]
-    clean_details=public_report_data(details)
-    for key,original in details.items():
-        clean=clean_details[key]
-        for src,dst in zip(original.get("documents",[]),clean.get("documents",[])):dst["text"]=src.get("text","")
-        for src,dst in zip(original.get("evidence",[]),clean.get("evidence",[])):
-            for field in ("text","quote"):dst[field]=src.get(field)
-        for src,dst in zip(original.get("claims",[]),clean.get("claims",[])):dst["text"]=src.get("text","")
-        clean["analysis"]=original["analysis"];clean["summary"]=original.get("summary","")
-    payload=public_payload;details=clean_details
-    require(protected=={key:{"documents":[(d["id"],d.get("text")) for d in item.get("documents",[])],
-        "evidence":[(v["id"],v.get("quote"),v.get("start"),v.get("end")) for v in item.get("evidence",[])]} for key,item in details.items()},
-        "Privacy transformation would change original text or quotation offsets; review source separately")
-    try:assembled=report_data.assemble(payload,details,public_report_data(sanitized(report_context or {})))
+    try:assembled=report_data.assemble(payload,details,sanitized(report_context or {}))
     except report_data.ReportDataError as exc:raise ValidationError(str(exc)) from exc
     report_data.emit(out,assembled)
+    industry_data=assembled.get("industry-research.js",(None,None))[1]
+    if industry_data is not None:
+        export_spec=importlib.util.spec_from_file_location("patent_industry_exports",pkg/"scripts"/"industry_exports.py")
+        industry_export=importlib.util.module_from_spec(export_spec);export_spec.loader.exec_module(industry_export)
+        try:
+            industry_export.package_materials(out,industry_data,(report_context or {}).get("industry_materials_root"))
+            industry_export.emit(out,industry_data,sanitized(report_context or {}).get("industry_reference_corpora"))
+        except ValueError as exc:raise ValidationError(str(exc)) from exc
     if unavailable_images:payload["run"]["limitations"].append("Some previously imported local image files are now missing or changed; those images remain unknown: "+str(len(unavailable_images)))
     if preview:
         payload["run"]["status"]="preview"
@@ -1708,17 +1730,20 @@ def _render_staged(c,output,preview=False,report_context=None,delivery_contract=
     for p in payload["patents"]: p["detail_shard"]=payload["detail_shards"][p["id"]]
     (out/"data"/"bootstrap.js").write_text("window.PP_DATA="+js_literal(payload)+";\n",encoding="utf-8")
     (out/"validation.json").write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding="utf-8")
-    if gate:delivery_module().emit(out,delivery_contract,gate,analysis_records)
-    (out/"sources-and-coverage.json").write_text(json.dumps(public_report_data({"run":payload["run"],
+    (out/"sources-and-coverage.json").write_text(json.dumps({"run":payload["run"],
       "registration_members":[registration_module().public_record(m) for m in registration_state(c)["active"]],
       "queries":[dict(r) for r in c.execute("SELECT * FROM queries")],
       "query_sets":rows_data(c,"query_sets"),"query_plan_contract":get_meta(c,"query_plan_contract"),
       "bibliography_sources":[{k:item.get(k) for k in ("id","publication_number","application_id","source_provider","source_artifact","artifact_sha256","record_path","provider_patent_type","normalized_patent_type","type_mapping_source","conflicts")} for item in rows_data(c,"bibliographies")],
       "population_reviews":rows_data(c,"population_reviews"),"candidate_review_states":population_state(c),
       "document_reviews":optional_rows_data(c,"document_reviews"),"analysis_invalidations":optional_rows_data(c,"analysis_invalidations"),
+      "semantic_reviews":research_quality_module().records(c,"quality_reviews"),
+      "research_plans":research_quality_module().records(c,"research_plan"),
+      "research_reviews":research_quality_module().records(c,"research_reviews"),
+       "research_workflow":research_module().export(c,research_context()),
+       "research_retired":get_meta(c,"research_retired",{}),
       "auxiliary_sources":[auxiliary.public_record(i) for i in aux_items],
-      "capabilities":rows_data(c,"capabilities"),
-      "source_validation_note":"Original cache bytes were checked before public metadata redaction. Unpackaged local references remain in the private source run."}),ensure_ascii=False,indent=2),encoding="utf-8")
+      "capabilities":rows_data(c,"capabilities")},ensure_ascii=False,indent=2),encoding="utf-8")
     overview_svg(out,payload)
     return {"output":str(out),"status":payload["run"]["status"],"applications":len(ids)}
 def overview_svg(out,payload):
@@ -1727,7 +1752,7 @@ def overview_svg(out,payload):
     esc=lambda x:html.escape(str(x),quote=True)
     pieces=['<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">',
       '<rect width="1280" height="800" fill="#f2f6fe"/>',
-      '<text x="64" y="75" font-size="34" font-family="Microsoft YaHei,sans-serif" fill="#16396b">'+esc(run["company"])+' · 专利棱镜｜企业专利三视角分析</text>',
+      '<text x="64" y="75" font-size="34" font-family="Microsoft YaHei,sans-serif" fill="#16396b">'+esc(run["company"])+' · 专利三视角</text>',
       '<text x="64" y="113" font-size="16" fill="#59718e">同源证据 · 管理层 / 研发 / 知识产权 · '+esc(run["as_of_date"])+'</text>']
     for i,(label,value) in enumerate([("范围内公开申请",cov["applications"]),("发明申请",sum(p["patent_type"]=="invention" for p in payload["patents"])),("授权有效",sum(p["legal_status"]=="有效" for p in payload["patents"])),("申请中 / 审查中",sum(p["legal_status"]=="审中" for p in payload["patents"]))]):
         x=64+i*292
@@ -1747,56 +1772,36 @@ def package_skill(output):
     require(not dest.is_relative_to(root),"ZIP must be outside skill directory")
     dest.parent.mkdir(parents=True,exist_ok=True)
     allowed_dirs={"scripts","references","assets","agents","tests"}
-    allowed_files={"SKILL.md","ORIGINALITY.md"}
+    allowed_files={"SKILL.md","ORIGINALITY.md","README.md","LICENSE","LICENSE.txt","CHANGELOG.md"}
     files=[]
     for p in root.rglob("*"):
-        if not p.is_file() or "__pycache__" in p.parts or p.suffix in (".pyc",".sqlite",".db",".zip"):continue
+        if not p.is_file() or any(part in p.parts for part in ("__pycache__",".runtime",".pytest_cache",".git")) or p.suffix in (".pyc",".sqlite",".db",".zip"):continue
         rel=p.relative_to(root)
         if rel.parts[0] in allowed_dirs or str(rel) in allowed_files: files.append(p)
     require((root/"SKILL.md") in files,"SKILL.md missing")
     with zipfile.ZipFile(dest,"w",compression=zipfile.ZIP_DEFLATED) as z:
         for p in sorted(files):z.write(p,Path(root.name)/p.relative_to(root))
-    return {"output":str(dest),"files":len(files),"sha256":hashlib.sha256(dest.read_bytes()).hexdigest()}
+    return {"output":str(dest),"release":SKILL_RELEASE,"files":len(files),"sha256":hashlib.sha256(dest.read_bytes()).hexdigest()}
 def cli(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--version",action="version",version="%(prog)s "+SKILL_RELEASE)
     parser.add_argument("--db",help="Run SQLite path; run files must remain outside the skill package")
     sub=parser.add_subparsers(dest="command",required=True)
     p=sub.add_parser("init");p.add_argument("--company",required=True);p.add_argument("--as-of");p.add_argument("--scope")
-    for name in ("entities-import","scope-confirm","capability-import","search-import","query-set-import","query-plan-confirm","bibliography-import","auxiliary-import","population-review-import","registration-member-import","document-import","document-review-import","analysis-import","insights-import","relations-import"):
+    for name in ("entities-import","scope-confirm","capability-import","search-import","query-set-import","query-plan-confirm","bibliography-import","auxiliary-import","population-review-import","registration-member-import","document-import","document-review-import","analysis-import","insights-import","relations-import","semantic-review-import","research-plan-import","research-review-import","research-import"):
         p=sub.add_parser(name);p.add_argument("--input",required=True)
     p=sub.add_parser("query-complete");p.add_argument("--query-id",required=True)
-    p=sub.add_parser("export-work");p.add_argument("--output",required=True)
+    p=sub.add_parser("export-work");p.add_argument("--output",required=True);p.add_argument("--max-primary-characters",type=int,help="Defer whole documents exceeding this user-chosen character limit; never truncate. Not a token budget.")
+    p=sub.add_parser("export-quality-work");p.add_argument("--output",required=True);p.add_argument("--review-packets",help="Optional directory for per-patent original-source packets and separately stored draft comparisons")
+    p=sub.add_parser("research-export");p.add_argument("--output",required=True)
     sub.add_parser("status");sub.add_parser("validate")
     p=sub.add_parser("render");p.add_argument("--output",required=True);p.add_argument("--report-context",help="Source-backed product classifications, reporting scope and optional corporate facts JSON");p.add_argument("--preview",action="store_true",help="Explicit test preview, never an accepted full report")
-    p.add_argument("--delivery-contract",help="Exact host-reviewed exception inventory; full-run status stays incomplete")
-    p.add_argument("--analysis-records",help="UTF-8 Markdown with the reviewed exceptions and recovery steps")
-    p=sub.add_parser("delivery-draft");p.add_argument("--output",required=True);p.add_argument("--report-context",required=True);p.add_argument("--analysis-records",required=True)
     p=sub.add_parser("package");p.add_argument("--output",required=True)
     args=parser.parse_args(argv)
     if args.command=="package":return package_skill(args.output),0
     require(args.db,"--db required")
     dbpath=Path(args.db).resolve();root=Path(__file__).resolve().parents[1]
     require(not dbpath.is_relative_to(root),"Run database must be outside reusable skill package")
-    if args.command=="delivery-draft" or (args.command=="render" and args.delivery_contract):
-        require(dbpath.is_file(),"Frozen source database must exist")
-        require(args.analysis_records,"--analysis-records is required with exception delivery")
-        context=read_input(args.report_context) if args.report_context else {}
-        records=Path(args.analysis_records).read_text(encoding="utf-8-sig")
-        conn=sqlite3.connect(dbpath.as_uri()+"?mode=ro",uri=True,timeout=30)
-        conn.row_factory=sqlite3.Row
-        try:
-            conn.execute("PRAGMA query_only=ON");conn.execute("BEGIN")
-            if args.command=="delivery-draft":
-                destination=Path(args.output)
-                require(not destination.exists(),"Preserve existing delivery contract")
-                result=delivery_module().draft(conn,delivery_context(),context,records)
-                destination.parent.mkdir(parents=True,exist_ok=True)
-                destination.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
-                return {"output":str(destination),"reviewed_by_host":False,"exceptions":len(result["exceptions"])},0
-            return render(conn,args.output,args.preview,context,read_input(args.delivery_contract),records,record_event=False),0
-        finally:conn.close()
-    if args.command=="render":
-        require(not args.analysis_records,"--analysis-records requires --delivery-contract")
     conn=db_open(dbpath)
     try:
         with conn:
@@ -1819,7 +1824,18 @@ def cli(argv=None):
                 elif args.command=="analysis-import":result=[import_analysis(conn,x) for x in as_list(read_input(args.input))]
                 elif args.command=="insights-import":result=import_insights(conn,read_input(args.input))
                 elif args.command=="relations-import":result=import_relations(conn,read_input(args.input))
-                elif args.command=="export-work":result=export_work(conn,args.output)
+                elif args.command=="research-import":result=research_module().import_workflow(conn,research_context(),read_input(args.input))
+                elif args.command=="research-export":
+                    destination=Path(args.output)
+                    require(not destination.exists(),"Preserve existing research export")
+                    destination.parent.mkdir(parents=True,exist_ok=True)
+                    destination.write_text(json.dumps(research_module().export(conn,research_context()),ensure_ascii=False,indent=2),encoding="utf-8")
+                    result={"output":str(destination)}
+                elif args.command=="semantic-review-import":result=research_quality_module().import_review(conn,read_input(args.input),research_quality_context())
+                elif args.command=="research-plan-import":result=research_quality_module().import_plan(conn,read_input(args.input),research_quality_context())
+                elif args.command=="research-review-import":result=research_quality_module().import_research(conn,read_input(args.input),research_quality_context())
+                elif args.command=="export-quality-work":result=research_quality_module().export_work(conn,args.output,research_quality_context(),review_packets=args.review_packets)
+                elif args.command=="export-work":result=export_work(conn,args.output,args.max_primary_characters)
                 elif args.command=="status":result=status_run(conn)
                 elif args.command=="validate":result=validate_run(conn)
                 elif args.command=="render":result=render(conn,args.output,args.preview,read_input(args.report_context) if args.report_context else None)

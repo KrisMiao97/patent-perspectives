@@ -51,14 +51,6 @@ python scripts/patent_perspectives.py --db RUN/recent5y.sqlite validate
 
 导入映射不会创建正文、证据或技术分析。成员不再增加独立技术任务，规范 EP 申请仍须以自身完整文本完成分析。不能用 EP 分析为 DE `analysis-import`，也不能把 EP 原文复制、重命名成德国全文。
 
-## 另外两种已支持的官方登记结构
-
-`dpma_patentblatt_same_notice_v1` 使用德国官方 Patentblatt 公告同一条目与官方索引，并与 EPO 同件原始 XML 对照。核验文献字节和获取回执、公告版本、所在页及条目文字、实际渲染像素和裁切范围，防止把不同公告条目拼接成登记关系。当前仅支持适配器明确实现的格式版本，不推定其他年份和版式等价。需要 pypdf、Pillow 及 PATH 中的 Poppler pdftoppm。
-
-`seeip_ep_register_v1` 使用奥地利 seeip 官方搜索及登记 JSON 的同一记录，再以 EPO 原始 XML 核对欧洲申请身份。完整保存获取回执和哈希，拒绝不同记录拼接、号码不一致或材料变化。JSON 路径不依赖 PDF 工具。
-
-二者均由 `scripts/official_registration_adapter.py` 执行，适用与原有适配器相同的范围、计数、来源完整性与禁止自动迁移分析规则。依赖缺失、格式不支持或证据失败属于身份错误，不能列入已审阅例外交付。
-
 ## 统一计数与详情
 
 - `included_source_records` 保留范围内原始申请/登记记录；`included_applications` 返回独立申请单位，只有经证据核验且两端均在范围中的成员才从额外单位中扣除。

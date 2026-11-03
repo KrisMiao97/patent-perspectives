@@ -1,0 +1,977 @@
+{
+  "scope": {
+    "synthetic": true,
+    "require_whole_patent_review": true,
+    "require_research_quality": true,
+    "description": "SYNTHETIC two optical mechanisms; no real patent/company/legal review."
+  },
+  "scope_confirmation": {
+    "confirmed": true,
+    "basis": "SYNTHETIC fixture only; exactly two complete short documents.",
+    "reviewed_through": "2026-11-02"
+  },
+  "entities": [
+    {
+      "id": "synthetic-root",
+      "name": "Synthetic Test Entity",
+      "relation": "root",
+      "confirmed": true,
+      "source_url": "https://example.test/synthetic",
+      "source_locator": "SYNTHETIC fixture, not real company"
+    }
+  ],
+  "searches": [
+    {
+      "query": {
+        "id": "synthetic-original",
+        "entity_id": "synthetic-root",
+        "kind": "original",
+        "provider": "Synthetic fixture",
+        "expected_count": 2,
+        "request": {
+          "query": "SYNTHETIC OPTICS ONLY",
+          "cutoff": "2026-11-02"
+        }
+      },
+      "offset": 0,
+      "result": {
+        "records": [
+          {
+            "pn": "CN900000001A",
+            "apno": "CN202000000001",
+            "title": "SYNTHETIC A: rotatable focus ring optical assembly",
+            "patent_type": "invention",
+            "filing_date": "2020-01-01",
+            "publication_date": "2021-01-01",
+            "original_assignee": "Synthetic Test Entity",
+            "current_assignee": "Synthetic Test Entity",
+            "family_id": "synthetic-common-family"
+          },
+          {
+            "pn": "CN900000002A",
+            "apno": "CN202000000002",
+            "title": "SYNTHETIC B: elastic retaining member optical assembly",
+            "patent_type": "invention",
+            "filing_date": "2020-01-01",
+            "publication_date": "2021-01-01",
+            "original_assignee": "Synthetic Test Entity",
+            "current_assignee": "Synthetic Test Entity",
+            "family_id": "synthetic-common-family"
+          }
+        ],
+        "total_search_result_count": 2
+      }
+    },
+    {
+      "query": {
+        "id": "synthetic-current",
+        "entity_id": "synthetic-root",
+        "kind": "current",
+        "provider": "Synthetic fixture",
+        "expected_count": 2,
+        "request": {
+          "query": "SYNTHETIC OPTICS ONLY",
+          "cutoff": "2026-11-02"
+        }
+      },
+      "offset": 0,
+      "result": {
+        "records": [
+          {
+            "pn": "CN900000001A",
+            "apno": "CN202000000001",
+            "title": "SYNTHETIC A: rotatable focus ring optical assembly",
+            "patent_type": "invention",
+            "filing_date": "2020-01-01",
+            "publication_date": "2021-01-01",
+            "original_assignee": "Synthetic Test Entity",
+            "current_assignee": "Synthetic Test Entity",
+            "family_id": "synthetic-common-family"
+          },
+          {
+            "pn": "CN900000002A",
+            "apno": "CN202000000002",
+            "title": "SYNTHETIC B: elastic retaining member optical assembly",
+            "patent_type": "invention",
+            "filing_date": "2020-01-01",
+            "publication_date": "2021-01-01",
+            "original_assignee": "Synthetic Test Entity",
+            "current_assignee": "Synthetic Test Entity",
+            "family_id": "synthetic-common-family"
+          }
+        ],
+        "total_search_result_count": 2
+      }
+    }
+  ],
+  "documents": [
+    {
+      "publication_number": "CN900000001A",
+      "returned_publication_number": "CN900000001A",
+      "application_number": "CN202000000001",
+      "document_type": "claims",
+      "identity_verified": true,
+      "replace_by_related": false,
+      "complete": true,
+      "truncated": false,
+      "text": "1. A synthetic optical assembly comprises a housing, a lens and a focus ring, wherein the focus ring is rotatably mounted on the housing and the lens is held by the focus ring.\n2. The synthetic optical assembly of claim 1, wherein the focus ring has an annular lens seat.",
+      "claim_count": 2,
+      "source_class": "synthetic",
+      "source_provider": "Synthetic fixture",
+      "source_url": "https://example.test/synthetic/claims",
+      "acquired_at": "2026-11-02T00:00:00Z",
+      "language": "en",
+      "version": "synthetic-published",
+      "completeness_basis": "Synthetic fixture contains exactly two numbered claims."
+    },
+    {
+      "publication_number": "CN900000002A",
+      "returned_publication_number": "CN900000002A",
+      "application_number": "CN202000000002",
+      "document_type": "claims",
+      "identity_verified": true,
+      "replace_by_related": false,
+      "complete": true,
+      "truncated": false,
+      "text": "1. A synthetic optical assembly comprises a housing, a lens and an elastic retaining member, wherein the elastic retaining member is mounted on the housing and holds the lens.\n2. The synthetic optical assembly of claim 1, wherein the elastic retaining member engages a peripheral portion of the lens.",
+      "claim_count": 2,
+      "source_class": "synthetic",
+      "source_provider": "Synthetic fixture",
+      "source_url": "https://example.test/synthetic/claims",
+      "acquired_at": "2026-11-02T00:00:00Z",
+      "language": "en",
+      "version": "synthetic-published",
+      "completeness_basis": "Synthetic fixture contains exactly two numbered claims."
+    }
+  ],
+  "analyses": [
+    {
+      "application_id": "CN:CN202000000001",
+      "document_id": "doc-164fc58df4ae62b5b872f295",
+      "analysis_author": "synthetic-fixed-author",
+      "whole_document_review": {
+        "document_id": "doc-164fc58df4ae62b5b872f295",
+        "source_text_hash": "daa6ad995a5d75e2bd79e1c6ab34e079c31c7b207dfd14f75ca91977ed30d030",
+        "reading_mode": "whole",
+        "complete": true,
+        "capacity_basis": "SYNTHETIC short two-claim original, fully loaded and read as one document; no figures or description provided."
+      },
+      "tail_check": {
+        "complete": true,
+        "quote": "2. The synthetic optical assembly of claim 1, wherein the focus ring has an annular lens seat.",
+        "claim_number": 2
+      },
+      "primary_module": "镜片定位结构",
+      "tags": [
+        "synthetic",
+        "光学机构"
+      ],
+      "summary": {
+        "text": "SYNTHETIC。A的镜片由调焦环保持，调焦环可转动地安装在壳体上；从属权利要求进一步限定环形镜片座。",
+        "evidence_ids": [
+          "synthetic-optics-1-c1",
+          "synthetic-optics-1-c2"
+        ],
+        "kind": "disclosed"
+      },
+      "fields": {
+        "application_field": [
+          {
+            "text": "SYNTHETIC光学组件。",
+            "evidence_ids": [
+              "synthetic-optics-1-c1"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "technical_problem": [],
+        "technical_means": [
+          {
+            "text": "A的镜片由调焦环保持，调焦环可转动地安装在壳体上；从属权利要求进一步限定环形镜片座。",
+            "evidence_ids": [
+              "synthetic-optics-1-c1",
+              "synthetic-optics-1-c2"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "components": [
+          {
+            "text": "壳体、镜片、调焦环。",
+            "evidence_ids": [
+              "synthetic-optics-1-c1"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "relationships": [
+          {
+            "text": "A的镜片由调焦环保持，调焦环可转动地安装在壳体上；从属权利要求进一步限定环形镜片座。",
+            "evidence_ids": [
+              "synthetic-optics-1-c1",
+              "synthetic-optics-1-c2"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "steps": [],
+        "conditions": [
+          {
+            "text": "调焦环可转动地安装在壳体上；权利要求2依赖权利要求1并增加环形镜片座。",
+            "evidence_ids": [
+              "synthetic-optics-1-c1",
+              "synthetic-optics-1-c2"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "claimed_effects": []
+      },
+      "evidence": [
+        {
+          "id": "synthetic-optics-1-c1",
+          "quote": "1. A synthetic optical assembly comprises a housing, a lens and a focus ring, wherein the focus ring is rotatably mounted on the housing and the lens is held by the focus ring.",
+          "locator": {
+            "claim_number": 1
+          }
+        },
+        {
+          "id": "synthetic-optics-1-c2",
+          "quote": "2. The synthetic optical assembly of claim 1, wherein the focus ring has an annular lens seat.",
+          "locator": {
+            "claim_number": 2
+          }
+        }
+      ],
+      "limitations": [
+        "SYNTHETIC，不是真实专利审阅。",
+        "仅有完整两项权利要求；未取得说明书、附图和测试；未披露技术问题、调焦动作传动细节、性能或功效。"
+      ]
+    },
+    {
+      "application_id": "CN:CN202000000002",
+      "document_id": "doc-b2710c6d53bc4210deed7cd3",
+      "analysis_author": "synthetic-fixed-author",
+      "whole_document_review": {
+        "document_id": "doc-b2710c6d53bc4210deed7cd3",
+        "source_text_hash": "faa1587e621e21f56a333da681af20e4544d5151542ba0a9b7db17a2e957bd47",
+        "reading_mode": "whole",
+        "complete": true,
+        "capacity_basis": "SYNTHETIC short two-claim original, fully loaded and read as one document; no figures or description provided."
+      },
+      "tail_check": {
+        "complete": true,
+        "quote": "2. The synthetic optical assembly of claim 1, wherein the elastic retaining member engages a peripheral portion of the lens.",
+        "claim_number": 2
+      },
+      "primary_module": "镜片定位结构",
+      "tags": [
+        "synthetic",
+        "光学机构"
+      ],
+      "summary": {
+        "text": "SYNTHETIC。B的弹性夹持件安装在壳体上并保持镜片；从属权利要求进一步限定夹持件与镜片外围部分接合。",
+        "evidence_ids": [
+          "synthetic-optics-2-c1",
+          "synthetic-optics-2-c2"
+        ],
+        "kind": "disclosed"
+      },
+      "fields": {
+        "application_field": [
+          {
+            "text": "SYNTHETIC光学组件。",
+            "evidence_ids": [
+              "synthetic-optics-2-c1"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "technical_problem": [],
+        "technical_means": [
+          {
+            "text": "B的弹性夹持件安装在壳体上并保持镜片；从属权利要求进一步限定夹持件与镜片外围部分接合。",
+            "evidence_ids": [
+              "synthetic-optics-2-c1",
+              "synthetic-optics-2-c2"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "components": [
+          {
+            "text": "壳体、镜片、弹性夹持件。",
+            "evidence_ids": [
+              "synthetic-optics-2-c1"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "relationships": [
+          {
+            "text": "B的弹性夹持件安装在壳体上并保持镜片；从属权利要求进一步限定夹持件与镜片外围部分接合。",
+            "evidence_ids": [
+              "synthetic-optics-2-c1",
+              "synthetic-optics-2-c2"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "steps": [],
+        "conditions": [
+          {
+            "text": "弹性夹持件安装在壳体上；权利要求2依赖权利要求1并增加与镜片外围接合。",
+            "evidence_ids": [
+              "synthetic-optics-2-c1",
+              "synthetic-optics-2-c2"
+            ],
+            "kind": "disclosed"
+          }
+        ],
+        "claimed_effects": []
+      },
+      "evidence": [
+        {
+          "id": "synthetic-optics-2-c1",
+          "quote": "1. A synthetic optical assembly comprises a housing, a lens and an elastic retaining member, wherein the elastic retaining member is mounted on the housing and holds the lens.",
+          "locator": {
+            "claim_number": 1
+          }
+        },
+        {
+          "id": "synthetic-optics-2-c2",
+          "quote": "2. The synthetic optical assembly of claim 1, wherein the elastic retaining member engages a peripheral portion of the lens.",
+          "locator": {
+            "claim_number": 2
+          }
+        }
+      ],
+      "limitations": [
+        "SYNTHETIC，不是真实专利审阅。",
+        "仅有完整两项权利要求；未取得说明书、附图和测试；未披露技术问题、调焦动作传动细节、性能或功效。"
+      ]
+    }
+  ],
+  "research": {
+    "schema_version": 1,
+    "id": "synthetic-optics-research",
+    "purpose": "SYNTHETIC离线技能使用验收：检验问题、比较、证据及审阅链。",
+    "audience": "management、rd、ip三种阅读角色。",
+    "work_context": "SYNTHETIC两件短光学机构；不得宣称真实专利审阅。",
+    "scope": "仅这两件SYNTHETIC申请、公开版本及完整两项权利要求。",
+    "selection_reason": "两份合成材料都有壳体、镜片与中间保持构件，能够比较安装关系，且不含历史或性能材料。",
+    "application_ids": [
+      "CN:CN202000000001",
+      "CN:CN202000000002"
+    ],
+    "questions": [
+      {
+        "id": "synthetic-q1",
+        "level": "main",
+        "origin": "researcher",
+        "text": "在这两份SYNTHETIC完整权利要求中，镜片与壳体之间的定位结构有何异同，能否据此判断性能高低或历史继承？",
+        "required_evidence": "两端完整权利要求中的安装、保持和从属限定；历史和性能结论需要额外材料。",
+        "status": "partial",
+        "answer": "SYNTHETIC样本A以可转动地安装在壳体上的调焦环保持镜片，B以安装在壳体上的弹性夹持件保持镜片；两者都通过中间构件把镜片连接到壳体，但中间构件及安装限定不同。A的从属项增加环形镜片座，B的从属项增加与镜片外围部分接合。本次原文没有同条件性能测试或历史联系材料，因此只能形成限定于两份文本的结构比较，不能排序性能或认定继承、改进、替代关系。",
+        "remaining": [
+          "等待不同负责者独立阅读原文并核对初稿，完成单件及专题复核。"
+        ]
+      }
+    ],
+    "dimensions": [
+      {
+        "id": "structure",
+        "label": "镜片保持结构",
+        "definition": "中间构件、壳体安装关系及镜片接合位置。",
+        "question_ids": [
+          "synthetic-q1"
+        ]
+      },
+      {
+        "id": "performance",
+        "label": "可比较的性能",
+        "definition": "是否披露同条件性能测试和结果；缺失不等于性能差。",
+        "question_ids": [
+          "synthetic-q1"
+        ]
+      }
+    ],
+    "terminology": [
+      {
+        "id": "lens",
+        "concept": "被保持的光学镜片",
+        "scope": "两份SYNTHETIC权利要求的保持关系；不推定材料、光学参数或产品用途相同。",
+        "equivalence": "contextual",
+        "entries": [
+          {
+            "application_id": "CN:CN202000000001",
+            "document_id": "doc-164fc58df4ae62b5b872f295",
+            "publication_number": "CN900000001A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-1-c1",
+              "synthetic-optics-1-c2"
+            ],
+            "original_term": "lens"
+          },
+          {
+            "application_id": "CN:CN202000000002",
+            "document_id": "doc-b2710c6d53bc4210deed7cd3",
+            "publication_number": "CN900000002A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-2-c1",
+              "synthetic-optics-2-c2"
+            ],
+            "original_term": "lens"
+          }
+        ]
+      },
+      {
+        "id": "retainer",
+        "concept": "承担镜片保持功能的不同中间构件",
+        "scope": "功能可在保持路径上比较，机制与具体限定保持差异。",
+        "equivalence": "distinct",
+        "entries": [
+          {
+            "application_id": "CN:CN202000000001",
+            "document_id": "doc-164fc58df4ae62b5b872f295",
+            "publication_number": "CN900000001A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-1-c1",
+              "synthetic-optics-1-c2"
+            ],
+            "original_term": "focus ring"
+          },
+          {
+            "application_id": "CN:CN202000000002",
+            "document_id": "doc-b2710c6d53bc4210deed7cd3",
+            "publication_number": "CN900000002A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-2-c1",
+              "synthetic-optics-2-c2"
+            ],
+            "original_term": "elastic retaining member"
+          }
+        ]
+      }
+    ],
+    "comparisons": [
+      {
+        "id": "synthetic-comparison",
+        "title": "SYNTHETIC镜片保持结构逐项比较",
+        "body": "SYNTHETIC样本A以可转动地安装在壳体上的调焦环保持镜片，B以安装在壳体上的弹性夹持件保持镜片；两者都通过中间构件把镜片连接到壳体，但中间构件及安装限定不同。A的从属项增加环形镜片座，B的从属项增加与镜片外围部分接合。本次原文没有同条件性能测试或历史联系材料，因此只能形成限定于两份文本的结构比较，不能排序性能或认定继承、改进、替代关系。",
+        "scope": "两件SYNTHETIC完整两项权利要求。",
+        "question_ids": [
+          "synthetic-q1"
+        ],
+        "units": [
+          {
+            "application_id": "CN:CN202000000001",
+            "document_id": "doc-164fc58df4ae62b5b872f295",
+            "publication_number": "CN900000001A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-1-c1",
+              "synthetic-optics-1-c2"
+            ],
+            "dimension_id": "structure",
+            "state": "disclosed",
+            "kind": "disclosed",
+            "text": "A以可转动地安装在壳体上的调焦环保持镜片；从属项增加环形镜片座。",
+            "conditions": "限定于该SYNTHETIC公开版本，权利要求2从属于权利要求1。",
+            "field_refs": [
+              "components",
+              "relationships",
+              "conditions"
+            ],
+            "term_ids": [
+              "lens",
+              "retainer"
+            ],
+            "claim_levels": [
+              {
+                "number": 1,
+                "level": "independent",
+                "depends_on": []
+              },
+              {
+                "number": 2,
+                "level": "dependent",
+                "depends_on": [
+                  1
+                ]
+              }
+            ]
+          },
+          {
+            "application_id": "CN:CN202000000001",
+            "document_id": "doc-164fc58df4ae62b5b872f295",
+            "publication_number": "CN900000001A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-1-c1",
+              "synthetic-optics-1-c2"
+            ],
+            "dimension_id": "performance",
+            "state": "not_disclosed",
+            "kind": "unknown",
+            "text": "该完整两项权利要求未披露同条件性能测试或性能排序。",
+            "conditions": "只限本次已读完整权利要求，不扩大到未取得的说明书或真实产品。",
+            "reason": "完整权利要求仅述结构与从属限定。",
+            "reviewed_claim_numbers": [
+              1,
+              2
+            ],
+            "field_refs": [],
+            "term_ids": [],
+            "claim_levels": [
+              {
+                "number": 1,
+                "level": "independent",
+                "depends_on": []
+              },
+              {
+                "number": 2,
+                "level": "dependent",
+                "depends_on": [
+                  1
+                ]
+              }
+            ]
+          },
+          {
+            "application_id": "CN:CN202000000002",
+            "document_id": "doc-b2710c6d53bc4210deed7cd3",
+            "publication_number": "CN900000002A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-2-c1",
+              "synthetic-optics-2-c2"
+            ],
+            "dimension_id": "structure",
+            "state": "disclosed",
+            "kind": "disclosed",
+            "text": "B以装在壳体上的弹性夹持件保持镜片；从属项增加外围接合。",
+            "conditions": "限定于该SYNTHETIC公开版本，权利要求2从属于权利要求1。",
+            "field_refs": [
+              "components",
+              "relationships",
+              "conditions"
+            ],
+            "term_ids": [
+              "lens",
+              "retainer"
+            ],
+            "claim_levels": [
+              {
+                "number": 1,
+                "level": "independent",
+                "depends_on": []
+              },
+              {
+                "number": 2,
+                "level": "dependent",
+                "depends_on": [
+                  1
+                ]
+              }
+            ]
+          },
+          {
+            "application_id": "CN:CN202000000002",
+            "document_id": "doc-b2710c6d53bc4210deed7cd3",
+            "publication_number": "CN900000002A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-2-c1",
+              "synthetic-optics-2-c2"
+            ],
+            "dimension_id": "performance",
+            "state": "not_disclosed",
+            "kind": "unknown",
+            "text": "该完整两项权利要求未披露同条件性能测试或性能排序。",
+            "conditions": "只限本次已读完整权利要求，不扩大到未取得的说明书或真实产品。",
+            "reason": "完整权利要求仅述结构与从属限定。",
+            "reviewed_claim_numbers": [
+              1,
+              2
+            ],
+            "field_refs": [],
+            "term_ids": [],
+            "claim_levels": [
+              {
+                "number": 1,
+                "level": "independent",
+                "depends_on": []
+              },
+              {
+                "number": 2,
+                "level": "dependent",
+                "depends_on": [
+                  1
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "relations": [
+      {
+        "id": "synthetic-optics-structural",
+        "source": "CN:CN202000000001",
+        "target": "CN:CN202000000002",
+        "type": "structural_change",
+        "kind": "inference",
+        "evidence_ids": [
+          "synthetic-optics-1-c1",
+          "synthetic-optics-1-c2",
+          "synthetic-optics-2-c1",
+          "synthetic-optics-2-c2"
+        ],
+        "label": "SYNTHETIC镜片定位结构差异",
+        "question_ids": [
+          "synthetic-q1"
+        ],
+        "comparison_ids": [
+          "synthetic-comparison"
+        ],
+        "endpoints": [
+          {
+            "application_id": "CN:CN202000000001",
+            "document_id": "doc-164fc58df4ae62b5b872f295",
+            "publication_number": "CN900000001A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-1-c1",
+              "synthetic-optics-1-c2"
+            ]
+          },
+          {
+            "application_id": "CN:CN202000000002",
+            "document_id": "doc-b2710c6d53bc4210deed7cd3",
+            "publication_number": "CN900000002A",
+            "version": "synthetic-published",
+            "evidence_ids": [
+              "synthetic-optics-2-c1",
+              "synthetic-optics-2-c2"
+            ]
+          }
+        ],
+        "similarities": "两者都有壳体和镜片，并由装在壳体上的中间构件保持镜片。",
+        "differences": "A为可转动的调焦环并有环形镜片座从属限定；B为弹性夹持件并有外围接合从属限定。",
+        "basis": "对照两份完整权利要求中的构件、安装关系及各自从属项，仅归纳结构差异。",
+        "limitations": [
+          "SYNTHETIC测试，不是真实专利或真实公司研究。",
+          "仅比较本次完整权利要求，说明书和实际产品未取得；历史和性能均未知。"
+        ],
+        "historical_status": "unproven"
+      }
+    ],
+    "insights": [
+      {
+        "title": "SYNTHETIC：共同保持路径与不同中间构件",
+        "body": "SYNTHETIC样本A以可转动地安装在壳体上的调焦环保持镜片，B以安装在壳体上的弹性夹持件保持镜片；两者都通过中间构件把镜片连接到壳体，但中间构件及安装限定不同。A的从属项增加环形镜片座，B的从属项增加与镜片外围部分接合。本次原文没有同条件性能测试或历史联系材料，因此只能形成限定于两份文本的结构比较，不能排序性能或认定继承、改进、替代关系。",
+        "evidence_ids": [
+          "synthetic-optics-1-c1",
+          "synthetic-optics-1-c2",
+          "synthetic-optics-2-c1",
+          "synthetic-optics-2-c2"
+        ],
+        "patent_ids": [
+          "CN:CN202000000001",
+          "CN:CN202000000002"
+        ],
+        "scope": "本次SYNTHETIC两件光学机构公开版本的完整权利要求。",
+        "limitations": [
+          "SYNTHETIC测试，不是真实专利或真实公司研究。",
+          "仅比较本次完整权利要求，说明书和实际产品未取得；历史和性能均未知。"
+        ],
+        "kind": "observation",
+        "question_ids": [
+          "synthetic-q1"
+        ],
+        "research_question_ids": [
+          "synthetic-q1"
+        ],
+        "comparison_ids": [
+          "synthetic-comparison"
+        ],
+        "relation_ids": [
+          "synthetic-optics-structural"
+        ],
+        "use": "辨认保持结构和文本限定，避免将结构差异直接解释为性能优势或历史演进。",
+        "alternatives": [
+          "两个方案可以是独立并列的结构；不同中间构件未必带来可比较的产品表现。"
+        ],
+        "next_checks": [
+          "本次SYNTHETIC范围不扩充资料；若未来有真实材料，应取得同条件测试和独立历史证据。"
+        ],
+        "finding_id": "synthetic-shared-finding",
+        "id": "synthetic-finding-management",
+        "role": "management",
+        "role_note": "关键事实是两个文本选择了不同的定位构件，不能外推商业优势。"
+      },
+      {
+        "title": "SYNTHETIC：共同保持路径与不同中间构件",
+        "body": "SYNTHETIC样本A以可转动地安装在壳体上的调焦环保持镜片，B以安装在壳体上的弹性夹持件保持镜片；两者都通过中间构件把镜片连接到壳体，但中间构件及安装限定不同。A的从属项增加环形镜片座，B的从属项增加与镜片外围部分接合。本次原文没有同条件性能测试或历史联系材料，因此只能形成限定于两份文本的结构比较，不能排序性能或认定继承、改进、替代关系。",
+        "evidence_ids": [
+          "synthetic-optics-1-c1",
+          "synthetic-optics-1-c2",
+          "synthetic-optics-2-c1",
+          "synthetic-optics-2-c2"
+        ],
+        "patent_ids": [
+          "CN:CN202000000001",
+          "CN:CN202000000002"
+        ],
+        "scope": "本次SYNTHETIC两件光学机构公开版本的完整权利要求。",
+        "limitations": [
+          "SYNTHETIC测试，不是真实专利或真实公司研究。",
+          "仅比较本次完整权利要求，说明书和实际产品未取得；历史和性能均未知。"
+        ],
+        "kind": "observation",
+        "question_ids": [
+          "synthetic-q1"
+        ],
+        "research_question_ids": [
+          "synthetic-q1"
+        ],
+        "comparison_ids": [
+          "synthetic-comparison"
+        ],
+        "relation_ids": [
+          "synthetic-optics-structural"
+        ],
+        "use": "辨认保持结构和文本限定，避免将结构差异直接解释为性能优势或历史演进。",
+        "alternatives": [
+          "两个方案可以是独立并列的结构；不同中间构件未必带来可比较的产品表现。"
+        ],
+        "next_checks": [
+          "本次SYNTHETIC范围不扩充资料；若未来有真实材料，应取得同条件测试和独立历史证据。"
+        ],
+        "finding_id": "synthetic-shared-finding",
+        "id": "synthetic-finding-rd",
+        "role": "rd",
+        "role_note": "理解中间构件装在哪里及如何保持镜片；调焦动作和弹性形变过程未披露。"
+      },
+      {
+        "title": "SYNTHETIC：共同保持路径与不同中间构件",
+        "body": "SYNTHETIC样本A以可转动地安装在壳体上的调焦环保持镜片，B以安装在壳体上的弹性夹持件保持镜片；两者都通过中间构件把镜片连接到壳体，但中间构件及安装限定不同。A的从属项增加环形镜片座，B的从属项增加与镜片外围部分接合。本次原文没有同条件性能测试或历史联系材料，因此只能形成限定于两份文本的结构比较，不能排序性能或认定继承、改进、替代关系。",
+        "evidence_ids": [
+          "synthetic-optics-1-c1",
+          "synthetic-optics-1-c2",
+          "synthetic-optics-2-c1",
+          "synthetic-optics-2-c2"
+        ],
+        "patent_ids": [
+          "CN:CN202000000001",
+          "CN:CN202000000002"
+        ],
+        "scope": "本次SYNTHETIC两件光学机构公开版本的完整权利要求。",
+        "limitations": [
+          "SYNTHETIC测试，不是真实专利或真实公司研究。",
+          "仅比较本次完整权利要求，说明书和实际产品未取得；历史和性能均未知。"
+        ],
+        "kind": "observation",
+        "question_ids": [
+          "synthetic-q1"
+        ],
+        "research_question_ids": [
+          "synthetic-q1"
+        ],
+        "comparison_ids": [
+          "synthetic-comparison"
+        ],
+        "relation_ids": [
+          "synthetic-optics-structural"
+        ],
+        "use": "辨认保持结构和文本限定，避免将结构差异直接解释为性能优势或历史演进。",
+        "alternatives": [
+          "两个方案可以是独立并列的结构；不同中间构件未必带来可比较的产品表现。"
+        ],
+        "next_checks": [
+          "本次SYNTHETIC范围不扩充资料；若未来有真实材料，应取得同条件测试和独立历史证据。"
+        ],
+        "finding_id": "synthetic-shared-finding",
+        "id": "synthetic-finding-ip",
+        "role": "ip",
+        "role_note": "区别独立项与各自从属项的限定，当前状态与保护结论均未知。"
+      }
+    ]
+  },
+  "report_context": {
+    "analysis_label": "SYNTHETIC 光学机构演示｜固定测试审阅夹具，不是真实专利研究",
+    "selection_mode": "sample",
+    "home_authorities": [
+      "CN"
+    ],
+    "status_observed_at": "unknown",
+    "classifications": {
+      "CN:CN202000000001": {
+        "product_group": "SYNTHETIC光学组件",
+        "product_line": "镜片保持组件",
+        "direction": "可转动调焦环",
+        "evidence_ids": [
+          "synthetic-optics-1-c1",
+          "synthetic-optics-1-c2"
+        ],
+        "reason": "SYNTHETIC完整权利要求明确构件及保持关系。"
+      },
+      "CN:CN202000000002": {
+        "product_group": "SYNTHETIC光学组件",
+        "product_line": "镜片保持组件",
+        "direction": "弹性夹持件",
+        "evidence_ids": [
+          "synthetic-optics-2-c1",
+          "synthetic-optics-2-c2"
+        ],
+        "reason": "SYNTHETIC完整权利要求明确构件及保持关系。"
+      }
+    },
+    "comparisons": [
+      {
+        "title": "SYNTHETIC定位结构比较",
+        "body": "SYNTHETIC样本A以可转动地安装在壳体上的调焦环保持镜片，B以安装在壳体上的弹性夹持件保持镜片；两者都通过中间构件把镜片连接到壳体，但中间构件及安装限定不同。A的从属项增加环形镜片座，B的从属项增加与镜片外围部分接合。本次原文没有同条件性能测试或历史联系材料，因此只能形成限定于两份文本的结构比较，不能排序性能或认定继承、改进、替代关系。",
+        "application_ids": [
+          "CN:CN202000000001",
+          "CN:CN202000000002"
+        ],
+        "evidence_ids": [
+          "synthetic-optics-1-c1",
+          "synthetic-optics-1-c2",
+          "synthetic-optics-2-c1",
+          "synthetic-optics-2-c2"
+        ]
+      }
+    ]
+  },
+  "semantic_review_fixtures": [
+    {
+      "application_id": "CN:CN202000000001",
+      "analysis_author": "synthetic-fixed-author",
+      "reviewer": "synthetic-fixed-reviewer",
+      "independent": true,
+      "reviewed_original_sources": true,
+      "result": "pass",
+      "evidence_ids": [
+        "synthetic-optics-1-c1",
+        "synthetic-optics-1-c2"
+      ],
+      "checks": {
+        "mechanism": {
+          "status": "pass",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 已先独立完整阅读原文，再核对初稿。SYNTHETIC权利要求1明确调焦环可转动地安装在壳体上并保持镜片；权利要求2增加环形镜片座。初稿正确保留这些安装和保持关系，没有补写轴向传动、具体调焦动作或效果。仅对本次合成文字作出判断，不是真实专利审阅。",
+          "evidence_ids": [
+            "synthetic-optics-1-c1",
+            "synthetic-optics-1-c2"
+          ]
+        },
+        "conditions": {
+          "status": "pass",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 权利要求2原文为 The synthetic optical assembly of claim 1，初稿明确其从属于权利要求1并增加环形镜片座，未将该附加限定写成独立项必备条件。原文未披露动作触发、传动细节或测试，初稿保留这些边界。",
+          "evidence_ids": [
+            "synthetic-optics-1-c1",
+            "synthetic-optics-1-c2"
+          ]
+        },
+        "embodiments": {
+          "status": "not_applicable",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 本次SYNTHETIC材料只有完整两项权利要求，没有提供或阅读说明书实施例；初稿也未提出实施例结论或合并替代实施例。被审结论只比较文字明示的保持构件、安装和从属关系，无须实施例即可判断；此项不代表已核对任何未取得实施例。"
+        },
+        "figures": {
+          "status": "not_applicable",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 没有取得或查看附图、公式或表格。被审结论仅为完整权利要求明示的安装、保持和从属限定，不包含须依靠图像决定的形状、尺寸、运动路径或性能结论；初稿明确附图未取得。因此本次限定文字比较不需要图文一致性判断，不据此宣称实际核过图件。"
+        },
+        "source_attribution": {
+          "status": "pass",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 逐字核对两条证据与 original-sources.json 中同申请、同公开号 CN900000001A、synthetic-published、英文原文及权利要求号，引用与尾文一致。初稿明确SYNTHETIC及未取得说明书、附图和测试；功效、步骤、技术问题为空，没有借用B的弹性夹持或周缘接合限定，没有混入其他版本或真实专利事实。",
+          "evidence_ids": [
+            "synthetic-optics-1-c1",
+            "synthetic-optics-1-c2"
+          ]
+        }
+      }
+    },
+    {
+      "application_id": "CN:CN202000000002",
+      "analysis_author": "synthetic-fixed-author",
+      "reviewer": "synthetic-fixed-reviewer",
+      "independent": true,
+      "reviewed_original_sources": true,
+      "result": "pass",
+      "evidence_ids": [
+        "synthetic-optics-2-c1",
+        "synthetic-optics-2-c2"
+      ],
+      "checks": {
+        "mechanism": {
+          "status": "pass",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 已先独立完整阅读原文，再核对初稿。SYNTHETIC权利要求1明确弹性夹持件安装在壳体上并保持镜片；权利要求2进一步限定其与镜片外围部分接合。初稿准确保留这些结构关系，没有补写卡扣、弹簧、特定形变动作或夹紧效果。仅对本次合成文字作出判断，不是真实专利审阅。",
+          "evidence_ids": [
+            "synthetic-optics-2-c1",
+            "synthetic-optics-2-c2"
+          ]
+        },
+        "conditions": {
+          "status": "pass",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 权利要求2原文为 The synthetic optical assembly of claim 1，初稿明确其从属于权利要求1并增加与镜片外围部分接合，未将该接合位置写成独立项必备条件。原文没有明确弹性变形触发或装配过程，初稿没有作进一步动作断言，也没有由未提调焦环推断B必然不能调焦。",
+          "evidence_ids": [
+            "synthetic-optics-2-c1",
+            "synthetic-optics-2-c2"
+          ]
+        },
+        "embodiments": {
+          "status": "not_applicable",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 本次SYNTHETIC材料只有完整两项权利要求，没有提供或阅读说明书实施例；初稿也未提出实施例结论或合并替代实施例。被审结论只比较文字明示的保持构件、安装和从属关系，无须实施例即可判断；此项不代表已核对任何未取得实施例。"
+        },
+        "figures": {
+          "status": "not_applicable",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 没有取得或查看附图、公式或表格。被审结论仅为完整权利要求明示的安装、保持和从属限定，不包含须依靠图像决定的形状、尺寸、运动路径或性能结论；初稿明确附图未取得。因此本次限定文字比较不需要图文一致性判断，不据此宣称实际核过图件。"
+        },
+        "source_attribution": {
+          "status": "pass",
+          "basis": "SYNTHETIC fixed software-test fixture; no new independent semantic reading is performed by this script. 逐字核对两条证据与 original-sources.json 中同申请、同公开号 CN900000002A、synthetic-published、英文原文及权利要求号，引用与尾文一致。初稿明确SYNTHETIC及未取得说明书、附图和测试；功效、步骤、技术问题为空，没有借用A的可转动安装或环形镜片座限定，没有混入其他版本或真实专利事实。",
+          "evidence_ids": [
+            "synthetic-optics-2-c1",
+            "synthetic-optics-2-c2"
+          ]
+        }
+      }
+    }
+  ],
+  "research_review_fixture": {
+    "question_id": "synthetic-q1",
+    "status": "resolved",
+    "answer": "SYNTHETIC样本A以可转动地安装在壳体上的调焦环保持镜片，B以安装在壳体上的弹性夹持件保持镜片；两者都通过中间构件把镜片连接到壳体，但中间构件及安装限定不同。A的从属项增加环形镜片座，B的从属项增加与镜片外围部分接合。本次原文没有同条件性能测试或历史联系材料，因此只能形成限定于两份文本的结构比较，不能排序性能或认定继承、改进、替代关系。",
+    "evidence_ids": [
+      "synthetic-optics-1-c1",
+      "synthetic-optics-1-c2",
+      "synthetic-optics-2-c1",
+      "synthetic-optics-2-c2"
+    ],
+    "comparison": {
+      "status": "compared",
+      "basis": "SYNTHETIC fixed software-test fixture only. This script performs no new independent semantic reading. 先独立读完两个 original-sources.json 并保存独立观察，再逐项核对当前初稿、analyses.json、research-partial.json 和 quality-manifest.json。A与B均有壳体、镜片及安装于壳体上的保持构件；A权利要求1为可转动安装的调焦环，B权利要求1为弹性夹持件；各自权利要求2才增加环形镜片座或外围接合。已核对两端比较单元各自只描述本件原文。两篇完整权利要求均无性能测试或历史联系材料，因此问题可在这两份SYNTHETIC文本限定内回答；该结论不属于真实专利研究。"
+    },
+    "counterevidence": {
+      "search_scope": "仅检查指定的两份SYNTHETIC原文包中完整权利要求1及2，并对照当前逐件初稿和专题底稿；没有联网，没有补读未取得的说明书、实施例或附图，没有扩大到其他材料。",
+      "findings": "两篇都明确壳体、镜片和保持构件，存在共同保持路径。A权利要求2的环形镜片座与B权利要求2的外围接合分别为本件从属限定，不能互换，也不能因A未述弹性或B未述可转动就认定两类构件或方案必然互斥。两篇均未给出同条件性能测试、时间顺序、借鉴或替代事实；实际未找到支持性能排序或历史继承的相反证据。另一可行解释是两个文本描述并列的结构选择，保持功能相近不能证明产品表现相同或一项更优。",
+      "impact": "这些检查支持限定于文字明示安装、保持及从属关系的结构比较，并要求保留性能和历史关系未知。答案已明确不能排序性能或认定继承、改进、替代，没有将未披露误写成否定事实；不因这一限定结论所不需要的外部材料缺失而把本题记为未解决。"
+    },
+    "conditions": "结论仅适用于本次两份SYNTHETIC英文公开测试版本的完整两项权利要求，不是真实专利、真实公司或真实产品判断。A的环形镜片座和B的镜片外围部分接合均只属于各自从属权利要求2，不能写成各自权利要求1的必备限定。共同保持路径仅指原文给出的安装和保持关系；不推定具体传动、弹性形变、光学参数相同，也不认定两类方案互斥。",
+    "limitations": [
+      "未取得说明书、实施例、附图、实物或测试；本次比较不依赖未取得的图像，不能宣称已核过图文或完整工作过程。",
+      "两份合成权利要求都没有同条件性能测试或历史联系材料，因此只能判断该两份文字不足以支持性能或历史结论，不能外推真实技术和市场表现。",
+      "本次未联网且没有扩展来源；resolved仅指这一受限问题获得证据支持的回答，不代表真实专利质量、准确率或外部事实已获验证。"
+    ],
+    "analysis_author": "synthetic-fixed-author",
+    "reviewer": "synthetic-fixed-reviewer",
+    "independent": true,
+    "reviewed_original_sources": true,
+    "review_result": "pass"
+  }
+}

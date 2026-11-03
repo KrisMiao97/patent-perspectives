@@ -130,6 +130,16 @@ def assemble(payload,details,context=None):
     claim_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(claim_module)
     try:claim_comparisons=claim_module.prepare(payload,details,ctx)
     except ValueError as exc:raise ReportDataError(str(exc)) from exc
-    return {'report.js':('PP_REPORT',{'portfolio':portfolio,'simple_families':families,'settings':settings,'comparisons':comparisons}), 'routes.js':('PP_ROUTES',{'nodes':routes,'modules':modules,'directions':directions}), 'timelines.js':('PP_TIMELINES',{'nodes':timeline,'featured':featured}), 'products.js':('PP_PRODUCTS',{'applications':assignments,'groups':list(dict.fromkeys(v['group'] for v in assignments.values()))}), 'product-events.js':('PP_PRODUCT_EVENTS',events), 'official-metrics.js':('PP_OFFICIAL',official), 'claim-comparisons.js':('PP_CLAIM_COMPARISONS',claim_comparisons)}
+    spec=importlib.util.spec_from_file_location('patent_industry_research',Path(__file__).with_name('industry_research.py'))
+    industry_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(industry_module)
+    try:industry=industry_module.prepare(payload,details,ctx)
+    except ValueError as exc:raise ReportDataError(str(exc)) from exc
+    research = None
+    if payload.get('research'):
+        spec=importlib.util.spec_from_file_location('patent_research_workflow',Path(__file__).with_name('research_workflow.py'))
+        research_module=importlib.util.module_from_spec(spec);spec.loader.exec_module(research_module)
+        try:research=research_module.prepare(payload['research'],details)
+        except (ValueError,KeyError,TypeError) as exc:raise ReportDataError(str(exc)) from exc
+    return {'research.js':('PP_RESEARCH',research), 'industry-research.js':('PP_INDUSTRY',industry), 'report.js':('PP_REPORT',{'portfolio':portfolio,'simple_families':families,'settings':settings,'comparisons':comparisons}), 'routes.js':('PP_ROUTES',{'nodes':routes,'modules':modules,'directions':directions}), 'timelines.js':('PP_TIMELINES',{'nodes':timeline,'featured':featured}), 'products.js':('PP_PRODUCTS',{'applications':assignments,'groups':list(dict.fromkeys(v['group'] for v in assignments.values()))}), 'product-events.js':('PP_PRODUCT_EVENTS',events), 'official-metrics.js':('PP_OFFICIAL',official), 'claim-comparisons.js':('PP_CLAIM_COMPARISONS',claim_comparisons)}
 def emit(out,assembled):
     for name,(global_name,data) in assembled.items():write_js(out,name,global_name,data)

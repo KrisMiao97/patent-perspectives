@@ -16,6 +16,12 @@
 
 知识产权视角还应呈现本次发现的、有证据支撑的布局和撰写观察，区分单件案例和组合重复特点，注明范围、依据、反例或不确定性并能跳转原文。执行细则见[产品梳理与知识产权特点观察](product-and-ip-observations.md)。这些内容进入适用的既有角色结论、选读或比较结构；如需扩展页面及数据字段，先同步实现和验证，不假定任意新字段会自动显示。
 
+专题复核通过后，把限定答案、关键比较理由及成立条件写入至少一条适合读者的既有角色结论，通过 `insights-import` 提交 `research_question_ids:["实际问题ID"]` 显式关联。结论引用须包含所关联专题结果的全部 `evidence_ids`；额外证据仅限这些问题的实际申请范围。允许一条结论承接多个问题，也允许只在最适合的一个角色中展开，不要求三个角色重复。比较正文或选读可以进一步解释，但不能仅在研究记录或覆盖附件中保存答案而不进入读者内容。
+
+真实研究质量要求启用时，正式 `render` 会检查每个当前已解决且独立复核通过的问题是否有上述当前有效映射；未知问题ID、过期结论、缺少专题证据或跨题引用会阻止生成。该检查只验证关联、证据覆盖与版本，不能证明正文解释正确；独立阅读审查仍需核对实际页面能否说明问题、差异、条件和依据。研究过程及复核进度不增加读者界面板块。
+
+启用[问题驱动研究](research-workflow.md)时，正文提供问题与限定答案、角色发现、术语、一般技术比较和关系的连续入口；`question_ids` 与上述 `research_question_ids` 共用问题身份。增强问题的 answered 答案来自当前通过审阅的结果，不能只修改页面文字；发现能跳转问题、比较或关系、两端同件同版本原文，有历史判断时另显示 `history_evidence`。问题选择仅筛选已说明的案例集，目录筛选不改变研究范围或固定结论。未完成研究的覆盖、原因与恢复步骤仍放独立说明；正文仅保留理解具体结论所必需的限制。
+
 权利要求要素对照和公开/授权版本变化只在专利工程师（`ip`）界面出现，包括板块、导航、案件选择和直达入口。使用[要素对照契约](claim-comparison.md)的同件同版本引文；管理层和研发的普通技术解释可以保留，但不挂载要素对照工具。阶段性交付、运行问题和增量变化不进入互动报告，统一写入下述独立文档。
 
 ## 输入 `report-context.json`
@@ -31,6 +37,7 @@ CLI：`python scripts/patent_perspectives.py --db RUN.sqlite render --output REP
 - `classifications`：以真实application_id为键，每项 `{product_group,product_line,direction,evidence_ids,reason}`。全部已完成技术分析逐件归类；原文明确支持产品及实现方式才填具体分类，证据属于该申请。无法明确时填`unknown:true`和`reason`，不用产品营销名称猜用途。`primary_module`从逐件分析沿用。
 - `featured`：选读主题数组，含`label,module,sub(可选),selection_reason,difference,nodes`；节点为`{id,title,body,evidence_ids}`。内容需解释结构、实际动作与条件。未提供时页面按大类件数及年度首末申请组织选读，明确这是时间选读，非价值排名。
 - `comparisons`：`{title,body,application_ids,evidence_ids}`数组；正文的每项差异须原文支持，不能将多件分支拼接成单个装置。
+- 结构化研究底稿通过 `research-import` 入库，不放在 `report-context.json` 中临时注入。普通 `comparisons` 保留原职责；增强入口从同一数据库的当前研究记录及关系、结论读取。
 - `claim_comparisons`：专利工程师专属的要素对照组，含同件版本、要素行、逐格状态和精确证据；由 `scripts/claim_comparison.py` 核验，完整输入见[要素对照契约](claim-comparison.md)。普通 `comparisons` 仍用于技术路线文字比较。
 - `official`：仅有可核验公司披露时提供`{source_title,url,locator,period_end,definition,owned:{total,invention,utility_model,design}}`。缺类型可为null；总数与完整类型分项必须对账。不把“拥有专利技术”重命名为授权有效。期末拥有量与年度新增流量比较要使用一致类型分母并标出时期，不能将含外观的比例直接与排除外观的比例当同口径。
 - `portfolio`：只有已另行完整取得更大范围时提供`{rows,scope,source,count_note}`。rows为规范独立申请著录，id唯一；source保留真实来源与对账位置。默认概览使用本次分析范围，不伪装成公司历史全量或当前拥有量。资料来源在详情及运行档案保留。
@@ -53,4 +60,14 @@ CLI：`python scripts/patent_perspectives.py --db RUN.sqlite render --output REP
 
 另查要素对照在管理层、研发、专利工程师之间的显示隔离和直达行为；核对互动报告没有过程或增量模块，独立说明中的编号与数据包问题记录一致，SQLite/JSONL/CSV可对账，市场来源与原文资产在移动目录后仍可找到。
 
+启用增强研究入口时，另查问题筛选、术语来源、四种比较状态、同一发现的三角色事实一致，以及技术关系两端和额外历史证据的原文入口；一般技术比较可供研发阅读，IP专属要素对照仍不泄漏到其他角色。
+
 功能与数据检查之外，进行[独立阅读审查](reader-acceptance.md#独立阅读审查)，让审查者实际走完三种角色的阅读路径，核对其是否能理解主要发现、技术过程、证据及口径，并在窄屏定位内容。记录具体理解障碍及修复结果，不把按钮可点或数据对账当成阅读通过。
+
+## 公司研究和路线研判模块
+
+启用五类公司研究任务时，按[公司研究任务](company-research-tasks.md)、[路线研判](route-assessment.md)与[证据矩阵](evidence-matrix.md)准备内容。可选 report-context.json.industry_research 的精确契约见[industry-data-contract.md](industry-data-contract.md)。本模块用独立公司和路线范围，来源类型不代表强弱分。所有主要路线有四类研判，证据不足明确说明。
+
+现有render加载scripts/industry_research.py校验数据，assets/panorama/industry-research.js/css生成公司×技术方向矩阵、任务回答、路线研判和选定案例地域表。未启用时隐藏，不改变既有完成门禁。另输出industry-research.json、industry-research.md、industry-sources.csv、industry-matrix.csv，纳入数据复用包。来源文件需按材料清单实际打包，外部链接不等于已离线保存。
+
+存在独立参考语料时另输出industry-reference-corpora.json，保留实际取得的完整文献和证据，不只保留页面中的片段。此文件加入数据复用材料清单，保留原公司、范围及原始复核边界。

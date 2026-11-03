@@ -17,7 +17,9 @@
 | 查询与页 | ID、主体、original/current、原始请求、预期总量、页位置、原始响应、已接收记录 |
 | 申请与文献 | 国家、申请号、公开号和kind、类型、日期、申请人/权利人原值、来源、metadata_original |
 | 文本版本 | 文献号、申请号、description/claims、语言、版本、完整性与身份核验、原文、来源及获取时间 |
-| 逐件分析 | 对应申请和文本、主模块、多标签、总结、技术字段、证据、分段完成情况及限制 |
+| 逐件分析 | 对应申请和文本、分析者、主模块、多标签、总结、技术字段、证据、整篇阅读与尾文记录、旧覆盖兼容编号及限制 |
+| 单件理解复核 | 独立审查者、当前分析与来源指纹、机制/条件/实施例/图文/来源检查、证据与结果 |
+| 专题研究 | 明确问题、申请选择依据、比较与反例检查、适用条件、答案及独立复核结果 |
 | 角色结论 | management/rd/ip、结论、证据、涉及申请、适用范围、推断性质及限制 |
 | 图谱关系 | 源节点、目标节点、关系类型、事实或推断、证据与标签 |
 | 冻结选择 | 仅用户指定最近N件时建立：完整候选排名、日期证据及快照哈希、稳定排序、所选ID、父子运行身份和边界取舍；私有清单不可修改，详见[最近N件范围](latest-selection.md) |
@@ -38,8 +40,12 @@
 - document-import：字段为 publication_number、application_number、document_type（description 或 claims）、language、version、source_url、source_provider、acquired_at、text、complete、truncated、replace_by_related、completeness_basis、identity_verified、returned_publication_number；可补充 source_class 和 source_request。通常source_class为patsnap、official或仅合成测试允许的synthetic；无source_url时必须有准确的source_request，official补证必须是脚本认可的专利局域名。另有仅用于完整权利要求的original_patent_document_mirror，须按[原始公报补证规则](original-document-claims.md)提供original_document_proof及source_label，通过原PDF、获取回执、全文页提取、实际视觉审核和原文区间哈希核验；不扩展official域名白名单。claims文本还需原来源声明的claim_count。全文必须保留原始权利要求编号行；脚本按实际编号解析每项的真实start/end区间。可提供claims数组，每项含number和text，但必须与原文解析的逐项编号和完整区间文本一致，不能由外部数组补造正文中不存在的编号。
 - document-review-import：宿主发现原文截断、关键公式或正文丢失后提交 decision=reject、document_id、reason_code、reason、reviewer 及精确原文 evidence。记录追加保存，不覆盖原文或原结构 qualified；已依赖该文本的分析失效并保留审计快照。相同申请、类型及文本哈希即使更换版本标签也继续拒绝；没有手动接受或解除门禁的接口。详见 [host-review.md](host-review.md)。
 - auxiliary-import：已保存的 legal_status、family、abstract_image 缓存按真实批请求、同件PN、record_index、原响应、哈希和取得时点核验后进入独立辅助表。法律状态保留逐文献观察、冲突汇总unknown，三种同族分别保留；签名图URL只存私有原始记录，导出仅使用核验本地图片及公共来源摘要。详情和使用见 [auxiliary-data.md](auxiliary-data.md)。
-- export-work --output：导出脚本分配的 application_id、document_id、主文献全部分段及证据上下文。默认完整 claims 优先，完整 claims 不可得时使用完整 description；同 PN 同语言合格 description 可列入 support_document_candidates，只有实际需要时才局部阅读。已有效完成的旧 description 分析不重复排队。
+- export-work --output：按申请导出完整任务包，包含脚本分配的 application_id、document_id、primary_document 全文、来源与定位信息；coverage 中保留旧分段编号用于兼容，不再以固定字数片段组织阅读。默认完整 claims 优先，完整 claims 不可得时使用完整 description；同 PN 同语言合格 description 可列入 support_document_candidates，只有实际需要时才局部阅读。已有效完成的旧 description 分析不重复排队；是否还需新质量复核另见 status。
+- export-work 可选 --max-primary-characters N：将超过该主文献字符数的整篇任务延后，写入 `OUTPUT.deferred.json`，不切割文本或缩小覆盖分母。该上限不是 token 安全阈值；后续须处理延后清单，不能将未导出解释为已完成。
 - analysis-import：逐件分析 JSON，结构见下。insights-import 和 relations-import 分别导入角色结论和关系数组。
+- semantic-review-import、research-plan-import、research-review-import：分别保存独立单件复核、研究问题及专题复核；字段和有效性要求见[研究质量契约](whole-patent-research.md#研究质量记录)。来源与分析更新后重审受影响记录，不能复用旧通过标签。
+- research-import、research-export：保存及导出[问题驱动研究底稿](research-workflow.md)，复用现有分析、证据、关系、结论与质量计划。questions[].id 就是计划的问题ID；首次没有计划时据底稿建立，已有计划只核对复用，冲突须显式 research-plan-import 并提供 revision_reason。先保存 partial/pending，独立审阅后才能提交与通过答案一致的 answered；命令不自动生成审查记录。
+- export-quality-work --output FILE：在复核者开始阅读时导出并保存实际待审版本清单。semantic-review-import 必填清单中的 analysis_fingerprint；research-review-import 必填 plan_hash 和 population_hash，缺失或与当前版本不同均拒绝。计划创建时的哈希仍由 research-plan-import 计算。资料变更后需重新导出及审阅，不得给旧结论换新哈希。
 - 最新N子运行的insights-import另须显式selection_scope，逐项匹配当前选择的kind、manifest_id、manifest_sha256、count、date_field、date_order、tie_break；保留自然语言适用范围，不能把母库结论换hash后继续使用。旧insights原行保留为历史，不计当前三角色完成，也不进入子范围页面。
 - status、validate：输出真实完成与失败情况。render --output 仅在正式门禁通过后生成页面；package --output 只打包通用技能，不含企业运行资料，企业数据另按 export_reuse.py 的帮助导出。
 
@@ -57,6 +63,10 @@
     python scripts/patent_perspectives.py --db ../../work/target.sqlite document-import --input ../../work/document.json
     python scripts/patent_perspectives.py --db ../../work/target.sqlite export-work --output ../../work/semantic-work.jsonl
     python scripts/patent_perspectives.py --db ../../work/target.sqlite analysis-import --input ../../work/analysis.json
+    python scripts/patent_perspectives.py --db ../../work/target.sqlite research-plan-import --input ../../work/research-plan.json
+    python scripts/patent_perspectives.py --db ../../work/target.sqlite export-quality-work --output ../../work/quality-work.json
+    python scripts/patent_perspectives.py --db ../../work/target.sqlite semantic-review-import --input ../../work/semantic-reviews.json
+    python scripts/patent_perspectives.py --db ../../work/target.sqlite research-review-import --input ../../work/research-reviews.json
     python scripts/patent_perspectives.py --db ../../work/target.sqlite insights-import --input ../../work/insights.json
     python scripts/patent_perspectives.py --db ../../work/target.sqlite relations-import --input ../../work/relations.json
     python scripts/patent_perspectives.py --db ../../work/target.sqlite validate
@@ -130,19 +140,19 @@ query-id 使用实际导入的 query.id；逐页获取、逐件全文导入与�
 
 仅在可检查的完整性依据存在、同件同版本身份核验通过、文本未截断且未被相关文献替换时，才将 complete 置为 true。returned_publication_number 应与实际源文献匹配，不能靠请求参数代替检查返回内容。
 
-document_type 只接受技术依据 description 或 claims。公开、授权及修改版本分别保存。技术全文分母仅含发明和实用新型。选定文本仍有未处理分段时，该申请分析不能完成。
+document_type 只接受技术依据 description 或 claims。公开、授权及修改版本分别保存。技术全文分母仅含发明和实用新型。选定主文本未完整阅读时，该申请分析不能完成；独立语义复核及专题完成另行验收。
 
 claims 原始编号的格式若不能被当前解析器识别，应保留原始资料并修正、验证适配器；不能手工给无编号正文添加编号来满足门禁。
 
-主文本分段由脚本根据实际文本产生，宿主从 export-work 读取真实 chunk IDs 和内容，逐段处理后填写 completed_chunk_ids。不能凭空生成已完成ID，也不能把阅读摘要当成覆盖正文。完整 claims 为默认主文献；按需补读说明书只在 support_documents 记录实际 read_regions，不加入主 completed_chunk_ids，也不宣称读完说明书全文。
+主文本作为完整任务提供。新文献的兼容覆盖区间覆盖全文；旧库已有分段和证据位置保持不变，不重新切割或删除。宿主读完所选文献后填写绑定 document_id/source_text_hash 的 whole_document_review 及 tail_check，脚本校验后生成兼容 completed_chunk_ids。不能以勾选编号或阅读摘要代替正文。连续阅读的完整覆盖、容量依据及字段见 [host-review.md](host-review.md)。完整 claims 为默认主文献；按需补读说明书只在 support_documents 记录实际 read_regions，不加入主完成编号，也不宣称读完说明书全文。
 
 宿主发现语义层面的正文残缺时，必须保存 document-review-import 拒绝，不能只在分析备注中承认残缺却仍计为完成。被拒绝文本不能用于 analysis-import、export-work、有效证据复用、技术全文或分析完成统计；完整同件替代文本可重新导入并全文分析。旧正文、旧分析及拒绝前快照分别保留。
 
 ## 逐件分析与原文证据
 
-analysis-import 中每条包含 application_id、document_id、primary_module、tags、summary、fields、evidence、completed_chunk_ids 和 limitations。application_id、document_id 与 chunk IDs 必须使用导出值。申请ID规范为 authority 加冒号、再加去标点后的含国别申请号，例如 CN:CN2015201595349；公开号与公开文献记录ID为大写去标点号，document_id 则使用脚本导出的哈希标识。不要根据显示标题自行生成ID。
+真实运行的 analysis-import 每条包含 application_id、document_id、analysis_author、whole_document_review、tail_check、primary_module、tags、summary、fields、evidence 和 limitations；兼容完成编号由核验后的整篇记录产生，显式提交时也须匹配原库。application_id、document_id 必须使用导出值。申请ID规范为 authority 加冒号、再加去标点后的含国别申请号，例如 CN:CN2015201595349；公开号与公开文献记录ID为大写去标点号，document_id 则使用脚本导出的哈希标识。不要根据显示标题自行生成ID。旧分析保留复用；重新导入真实分析时须补足实际阅读记录，不能伪造。
 
-summary 为含 text 和 evidence_ids 的对象；fields 的各项是含 text、evidence_ids 和 kind 的对象数组。kind 使用 disclosed 或 inference，推断还需说明依据和条件。支持的字段为 application_field、technical_problem、technical_means、components、relationships、steps、conditions、claimed_effects。
+summary 为含 text 和 evidence_ids 的对象；fields 须包含 application_field、technical_problem、technical_means、components、relationships、steps、conditions、claimed_effects 八项，每项是含 text、evidence_ids 和 kind 的对象数组。未披露者填空数组并解释限制。kind 使用 disclosed 或 inference；推断须有非空 basis 和 conditions。直接导入与紧凑审阅工具采用一致的真实运行要求。
 
 evidence 每条含 id、quote、locator，并可含 document_id、start/end。省略 document_id 时使用主文献，兼容旧单源分析；给定时必须为主文献或已声明的辅助文献，不能被脚本悄悄改归属。quote 必须是该 evidence.document_id 中可以精确验证的连续原文，不接受译文冒充原文、拼接引文或省略号。locator 保存段落、页码、权利要求编号等定位；claims 证据须使用含 claim_number 整数的对象，或字符串“权利要求N”，并核对引文的真实 start/end 完全位于该项权利要求的原始编号区间。另一条权利要求出现相同文字也不能据此借用其位置。字符offset若不确定则省略，由脚本定位核对。重复引文必须提供准确 start/end；位置按Python Unicode字符索引计算，不能直接使用JavaScript UTF-16索引。
 
@@ -156,7 +166,7 @@ evidence 每条含 id、quote、locator，并可含 document_id、start/end。�
 
 ## 角色结论与关系
 
-insights-import 的每条记录包含 id、role、title、body、evidence_ids、patent_ids、scope、limitations、kind。role 使用 management、rd 或 ip；kind 使用 observation、hypothesis 或 research_action。scope 描述原始适用范围，至少明确本运行及相关申请；已有全组合结论在筛选后仍保留该范围，不自动视为子集结论。
+insights-import 的每条记录包含 id、role、title、body、evidence_ids、patent_ids、scope、limitations、kind。role 使用 management、rd 或 ip；kind 使用 observation、hypothesis 或 research_action。scope 描述原始适用范围，至少明确本运行及相关申请；已有全组合结论在筛选后仍保留该范围，不自动视为子集结论。承接已完成专题的正文结论另填 research_question_ids，并按[报告组织](reporting.md)携带专题的完整证据关联；正式 render 检查是否漏题或缺证。
 
 relations-import 的每条记录包含 id、source、target、type、kind、evidence_ids、label。kind 为 fact 或 inference。事实边需 evidence_ids，或 source_url 加 source_locator；推断边需 evidence_ids 和非空 basis，说明归纳依据。技术相似、问题—手段归纳和模块聚合属于分析边。引用方向按原始数据保存，不能反转被引与引用。
 
@@ -164,9 +174,11 @@ relations-import 的每条记录包含 id、source、target、type、kind、evid
 
 跨专利结论只引用已导入且可追溯的证据。统计先由脚本计算，再由宿主解释；模型不得补写数量、状态、期限或同族成员。
 
+可选问题驱动扩展将术语、维度和结构化比较保存在 meta.research_workflow；增强关系与发现进入既有表，并按[完整契约](research-workflow.md#输入契约)核对同件同版本来源、比较状态、主从权项、两端技术证据、历史证据及角色事实一致。发现的 question_ids 与 research_question_ids 必须一致，旧扩展输入省略后者时补同名关联。单事务导入失败全部回滚；来源、分析、范围或关联内容变化使工作流绑定失效，须重审后重新导入，不手工换哈希。质量计划与复核记录本身不加入此绑定，补做真实复核不构成内容变化。
+
 ## 完成与失败处理
 
-完整案例需要集团边界确认、全部计划查询对账、所有技术申请的合格文本与逐件分析，以及通过引用和关系校验。法律状态、同族、附图和图片分别报告覆盖；缺失可显示未知。
+完整案例需要集团边界确认、全部计划查询对账、所有技术申请的合格文本与逐件分析，以及通过引用和关系校验。真实运行另需有效的单件独立语义复核、研究计划及全部问题的有效专题复核；缺少或过期的记录、待修订或证据不足结果不计研究完成。法律状态、同族、附图和图片分别报告覆盖；未知不能代替完成，也不能因辅助字段未知而混淆技术阅读分母。程序验证可检查记录和来源关系，不给出语义准确率。
 
 服务错误保留响应和尝试记录，超限后待外部条件变化再继续。重复导入、重试或中断续跑不得重复计数；更换证据版本或修正分析后需重新验证受影响结论。不得手工修改 SQLite 来绕过门禁。
 

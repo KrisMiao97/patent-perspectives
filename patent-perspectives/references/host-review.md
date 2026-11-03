@@ -1,18 +1,25 @@
 # 宿主全文审阅的紧凑输入
 
-`scripts/materialize_review.py` 只将宿主已经选好的原文位置转换为精确证据。宿主仍需逐件读完 `export-work` 主文献的全部 chunks 和尾段，亲自填写主模块、标签、总结、八个技术字段及限制。默认主文献为完整 claims；技术术语、结构、步骤或机制有具体疑问时，才局部补读同 PN description。完整 claims 不可得时用完整 description 回退。工具不生成摘要、归类、技术问题或功效，不调用模型或网络。
+`scripts/materialize_review.py` 只将宿主已经选好的原文位置转换为精确证据。宿主仍需按[整篇分析](whole-patent-research.md)读完 `export-work` 提供的主文献及实际尾文，亲自填写主模块、标签、总结、八个技术字段及限制。默认主文献为完整 claims；技术术语、结构、步骤或机制有具体疑问时，才局部补读同 PN description。完整 claims 不可得时用完整 description 回退。工具不生成摘要、归类、技术问题或功效，不调用模型或网络。
 
-此格式减少重复抄录，主文献仍须完整阅读。辅助说明书只记录实际补读的相关区间，不声称全书已读；问题和功效未披露时留空，不为填空额外阅读。`read_chunk_ids` 和 `tail_check` 是宿主对主文献的明确阅读声明；机械校验可以发现身份、范围和字符串错误，不能证明宿主真正理解了全文，也不能代替独立语义复核。
+此格式减少重复抄录，主文献仍须完整阅读。辅助说明书只记录实际补读的相关区间，不声称全书已读；问题和功效未披露时留空，不为填空额外阅读。`whole_document_review` 和 `tail_check` 是宿主对主文献的明确阅读声明；机械校验可以发现身份、范围和字符串错误，不能证明宿主真正理解了全文，也不能代替独立语义复核。
 
 ## 输入
 
-输入可以是一个 JSON 对象、对象数组或 UTF-8 JSONL。每条保留导出的 `application_id`、`document_id` 和全部实际 chunk IDs；可额外提供 `source_text_hash` 核验版本。不得自行编造 ID。
+输入可以是一个 JSON 对象、对象数组或 UTF-8 JSONL。每条保留导出的 `application_id`、`document_id`，提供实际 `analysis_author` 和绑定所选原文哈希的 `whole_document_review`。不要自行编造 ID 或将片段阅读记为完整阅读。真实运行不能只提交旧 `read_chunk_ids` 声明；原库旧分段保持不变，工具依据已验证的整篇记录派生兼容完成编号。旧合成测试输入仍可使用原分段格式，不得将真实资料改标测试来跳过要求。
 
 ```json
 {
   "application_id": "从 export-work 保留原值",
   "document_id": "从 export-work 保留原值",
-  "read_chunk_ids": ["实际已读 chunk ID 1", "实际已读 chunk ID 2"],
+  "analysis_author": "实际完成整篇分析的负责者标识",
+  "whole_document_review": {
+    "document_id": "从 export-work 保留原值",
+    "source_text_hash": "所选原文的实际哈希",
+    "reading_mode": "whole",
+    "complete": true,
+    "capacity_basis": "说明本件完整材料、必要图片、补查及分析输出可放入当前上下文的实际判断依据"
+  },
   "tail_check": {
     "complete": true,
     "quote": "亲自读过并确认完整的原文结尾连续片段，至少十二字符",
@@ -37,6 +44,8 @@
 ```
 
 上例是结构示意，不是真实专利分析。说明书的尾段编号使用 `paragraph_number`；权利要求使用 `claim_number`。这些可选尾段编号必须等于所选文本的最后编号。`complete` 没有默认值，必须由宿主确认；若尾句断裂、关键公式或必要图表丢失，不得为通过校验而填 true。实际尾文字符串匹配也不能代替完整性判断，此时按下节提交拒绝记录并补证。
+
+超过本次可可靠处理容量时，仍由同一负责者连续阅读同一任务，`reading_mode` 改为 `continuous`，另填非空 `reason` 和 `read_regions:[{"start":0,"end":实际终点},...]`。区间采用原文 Python Unicode 字符索引，按阅读顺序从0完整覆盖到全文长度；允许相接或必要重叠，不允许缺口、重复或越界。`whole` 模式不填写非空 `read_regions`。两种模式都需要真实尾文检查；同时填写旧 `read_chunk_ids` 时，必须与数据库兼容编号完全一致。
 
 八个字段必须全部出现且值都是数组。原文未披露者填 `[]` 并在 `limitations` 解释，不以 `null`、`{}`、`"unknown"` 或占位发现替代。一个字段可以有多条有证据的发现。总结及每条发现使用 `evidence` 引用本条所选的紧凑 key；禁止预造 `evidence_ids`。`kind` 默认 disclosed；宿主提出 inference 时，另写非空 `basis` 和 `conditions`，工具不会代写推断。
 
@@ -68,7 +77,7 @@
 }
 ```
 
-此例只是新增字段示意，需与完整主输入合用。主 read_chunk_ids/tail_check 仍覆盖所有 claims。read_regions 的段落必须真实已读，不能仅因脚本能定位就填 reviewed=true；无段号时用 `start`、`end`、`locator:{"source_span":true}`。read_regions 不接受 claim_number，不要把说明书段号当成权利要求编号；重叠或重复阅读区间会被拒绝。源区间按 Python Unicode 字符索引计算。
+此例只是新增字段示意，需与完整主输入合用。主 `whole_document_review/tail_check` 仍覆盖所有 claims；辅助 `support_documents/read_regions` 只覆盖实际补读的说明书。辅助段落必须真实已读，不能仅因脚本能定位就填 reviewed=true；无段号时用 `start`、`end`、`locator:{"source_span":true}`。辅助读区间不接受 claim_number，不要把说明书段号当成权利要求编号；其重叠或重复区间会被拒绝。源区间按 Python Unicode 字符索引计算。
 
 脚本把上述读段解析成该 description 自身的精确 start/end/locator，记录原文哈希及 reading_scope=selected_regions。每条辅助 evidence 保留独立 document_id、版本、语言和来源，且必须落在某个实际已读区间。省略 evidence.document_id 的旧输入仍指向主文献；无辅助源时不需新增字段。补读文献被拒绝或变更后，分析失效，不能仅靠主 claims 仍完整而继续宣称原混合分析有效。
 
@@ -80,7 +89,7 @@ python scripts/materialize_review.py --db RUN.sqlite --input host-review.json --
 
 源数据库始终只读。`--validate-import` 将数据库备份到内存，在其中调用真实 `import_analysis`；候选范围审核、完整文本资格和所有核心门禁仍然生效。省略该参数时仅完成输入和证据校验，输出 review 明确为待正式导入。校验失败不会创建本次输出。
 
-成功后输出逐件 `公开号-analysis.json`、`公开号-review.json` 及累计 `analyses-ready.json`。后者是正常 `analysis-import --input` 的输入；内存通过不表示已经写入正式库，更不表示全量案例验收完成。同一输入批次每个申请只允许一个版本，避免覆盖同名 checkpoint。
+成功后输出逐件 `公开号-analysis.json`、`公开号-review.json` 及累计 `analyses-ready.json`，保留整篇阅读、尾文、分析者及兼容覆盖记录。后者是正常 `analysis-import --input` 的输入；内存通过不表示已经写入正式库，更不表示完成独立语义审查或全量研究验收。同一输入批次每个申请只允许一个版本，避免覆盖同名 checkpoint。正式导入后另按[研究质量契约](whole-patent-research.md#研究质量记录)提交真实独立复核。
 
 ## 发现正文缺陷时
 

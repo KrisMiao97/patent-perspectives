@@ -1,0 +1,42 @@
+#industry-research{--ir-blue:#205b94;--ir-line:#dce8f3;--ir-muted:#5d7081;min-width:0;scroll-margin-top:24px}
+#industry-research[hidden],[data-industry-link][hidden]{display:none!important}
+#industry-research h2,#industry-research h3{color:var(--ir-blue)}
+.ir-scope{padding:14px 18px;border-left:3px solid #4e89bc;background:#f2f7fc;line-height:1.8;color:#354f65;margin:0 0 12px}
+.ir-role-note{color:#4f6476;font-size:14px;line-height:1.7;margin:0 0 18px}
+.ir-task-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px;margin-bottom:28px}
+.ir-task{padding:20px;background:#fff;border:1px solid var(--ir-line);border-radius:8px;min-width:0}
+.ir-task-kind{font-size:12px;font-weight:700;color:#2c689b;letter-spacing:.04em}
+.ir-task h3{font-size:17px;line-height:1.65;margin:8px 0 12px}.ir-task-answer{line-height:1.8;color:#29485e;margin:0 0 12px}
+.ir-subheading{margin:24px 0 16px}.ir-subheading h3,.ir-block-title{font-size:21px;margin:0 0 10px}.ir-block-title{margin-top:30px!important}
+.ir-note,.ir-filter-note{color:#526a7d;font-size:13px;line-height:1.8;margin:8px 0;overflow-wrap:anywhere}.ir-filter-note{background:#f7fafd;padding:10px 14px;border-radius:5px}
+.ir-controls{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:10px}.ir-controls label{display:grid;gap:6px;color:#3f5d74;font-size:13px;font-weight:600;min-width:150px;flex:1}
+.ir-controls select{width:100%;min-width:0;min-height:44px;padding:8px 32px 8px 12px;background:#fff;border:1px solid #c8dbea;border-radius:5px;font:inherit;color:#284b68}
+.ir-button{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:8px 14px;background:#f3f8fc;border:1px solid #c8dbea;border-radius:5px;font:inherit;font-size:13px;color:#205b94;cursor:pointer;text-decoration:none;white-space:nowrap}
+.ir-button:hover{background:#e4f0fb}.ir-button:focus-visible,.ir-ref:focus-visible,.ir-controls select:focus-visible,.ir-scroll:focus-visible,.ir-route summary:focus-visible{outline:3px solid #2b7fbd;outline-offset:3px}
+.ir-count{font-size:13px;color:#536e82;margin:10px 0}
+.ir-scroll{overflow:auto;max-width:100%;max-height:720px;border:1px solid var(--ir-line);border-radius:6px;background:#fff;overscroll-behavior-x:contain;scroll-padding:72px 20px 20px 212px}
+.ir-matrix,.ir-jurisdictions{border-collapse:separate;border-spacing:0;width:100%;table-layout:auto;color:#29485e}
+.ir-matrix th,.ir-matrix td,.ir-jurisdictions th,.ir-jurisdictions td{border-right:1px solid var(--ir-line);border-bottom:1px solid var(--ir-line);padding:16px;text-align:left;vertical-align:top;line-height:1.7;white-space:normal}
+.ir-matrix tr:last-child>*,.ir-jurisdictions tr:last-child>*{border-bottom:0}.ir-matrix tr>:last-child,.ir-jurisdictions tr>:last-child{border-right:0}
+.ir-matrix thead th,.ir-jurisdictions thead th{position:sticky;top:0;z-index:3;background:#eaf3fc;color:#205b94;font-size:14px;font-weight:700;min-width:218px}
+.ir-matrix thead th:first-child,.ir-jurisdictions thead th:first-child{left:0;z-index:5;min-width:188px}
+.ir-company{position:sticky;left:0;z-index:2;min-width:188px;max-width:230px;background:#f2f7fd;color:#244c6d;box-shadow:3px 0 5px -5px #426c8f}
+.ir-company strong{display:block;font-size:15px}.ir-company small{display:block;color:#657d90;font-weight:400;font-size:12px;margin-top:3px}.ir-target{display:inline-block;color:#1d6398;font-size:11px;border:1px solid #bfdaef;padding:1px 7px;margin-top:7px;border-radius:20px;font-weight:500}
+.ir-claim+.ir-claim{margin-top:14px;padding-top:12px;border-top:1px dashed #c6d8e5}.ir-claim-text{font-size:14px;line-height:1.8;margin:6px 0 1px;min-width:190px;max-width:340px;overflow-wrap:anywhere}
+.ir-tag{display:inline-block;font-size:11px;font-weight:600;line-height:1.8;padding:2px 7px;border:1px solid #d3e2ec;border-radius:4px;color:#385a72;white-space:normal}
+.ir-kind-F{background:#e3f1fd}.ir-kind-P{background:#edf7f1}.ir-kind-R{background:#f0edfa}.ir-kind-O{background:#f3f1fb}.ir-kind-L{background:#fff}.ir-kind-U{background:#f3f5f7;color:#617486}.ir-filtered{background:#fafcfe;color:#657789}
+.ir-refs{display:inline-flex;flex-wrap:wrap;gap:4px;vertical-align:baseline}.ir-ref{display:inline-flex;min-height:30px;align-items:center;padding:3px 4px;font:inherit;font-size:12px;color:#1663ac;border:0;background:transparent;text-align:left;cursor:pointer;border-radius:3px;overflow-wrap:anywhere}.ir-ref:hover{background:#dcecf9;text-decoration:underline}
+.ir-legend{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 8px}
+.ir-route-list{display:grid;gap:12px}.ir-route{border:1px solid var(--ir-line);border-radius:7px;background:#fff;min-width:0}
+.ir-route summary{cursor:pointer;display:flex;align-items:center;gap:14px;padding:17px 19px;list-style:none;min-height:64px;color:#245779}.ir-route summary::-webkit-details-marker{display:none}.ir-route summary strong{flex:1;font-size:16px;line-height:1.6}.ir-route-number{font-size:13px;color:#6489a4}.ir-expand{font-size:12px;color:#5a7890}.ir-route[open] .ir-expand{font-size:0}.ir-route[open] .ir-expand::after{content:'收起研究';font-size:12px}
+.ir-route-content{border-top:1px solid var(--ir-line);padding:20px}.ir-field{font-size:14px;line-height:1.85;color:#35556c;margin:7px 0;overflow-wrap:anywhere}.ir-field strong{font-weight:600;color:#244a68}
+.ir-module-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:20px}.ir-module{border-top:3px solid #8ab8db;padding:16px;background:#f7fafd;border-radius:3px;min-width:0}.ir-module h4{font-size:16px;color:#255f90;margin:0 0 12px}.ir-module-summary{font-size:14px;line-height:1.85;color:#35556c;margin:0 0 7px}
+.ir-item{padding-top:10px;border-top:1px solid #dce7f0;margin-top:14px}.ir-item h5{font-size:14px;color:#255f90;margin:0 0 7px}.ir-unknown{display:inline-block;font-size:12px;color:#637485;background:#eaf0f5;border-radius:3px;padding:4px 7px;margin-top:5px}
+.ir-jurisdictions td{min-width:135px}.ir-jurisdictions thead th{min-width:135px}.ir-geo-symbol{display:block;color:#23577d;font-size:19px;text-align:center}.ir-geo-label{display:block;font-size:11px;color:#5a7387;text-align:center}.ir-jurisdictions .ir-note{font-size:11px}
+.ir-dialog{color:#29485e;width:min(760px,calc(100vw - 28px));max-height:85vh;padding:0;border:1px solid #c8dbea;border-radius:9px;box-shadow:0 20px 70px #1c456440;overflow:auto}.ir-dialog::backdrop{background:#17334d66}.ir-dialog-top{display:flex;justify-content:space-between;align-items:center;gap:14px;position:sticky;top:0;background:#edf5fc;padding:14px 20px;border-bottom:1px solid #d7e5f0;z-index:1}.ir-dialog-top strong{font-size:15px}.ir-dialog-body{padding:22px}.ir-dialog-body h2{color:#205b94;font-size:22px;line-height:1.6;margin:0 0 16px;overflow-wrap:anywhere}.ir-dialog-body .ir-note{font-size:14px;line-height:1.9}.ir-source-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.ir-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:680px){.ir-controls{gap:10px}.ir-controls label{min-width:calc(50% - 10px)}.ir-controls label:first-child{min-width:100%}.ir-task-grid{grid-template-columns:1fr}.ir-module-grid{grid-template-columns:1fr}.ir-route-content{padding:15px}.ir-route summary{padding:14px;gap:9px}.ir-matrix thead th:first-child,.ir-company,.ir-jurisdictions thead th:first-child{min-width:128px;max-width:150px}.ir-company strong{font-size:13px}.ir-matrix th,.ir-matrix td,.ir-jurisdictions th,.ir-jurisdictions td{padding:12px}.ir-matrix thead th{min-width:210px}.ir-scroll{max-height:590px;scroll-padding-left:155px}.ir-ref{min-height:36px}.ir-subheading h3,.ir-block-title{font-size:19px}.ir-dialog-body{padding:18px}.ir-task h3{font-size:17px}}
+@media print{.ir-scroll{max-height:none;overflow:visible}.ir-controls,.ir-expand{display:none}.ir-route-content{display:block}.ir-matrix{font-size:10px}.ir-company{position:static}}
+
+.ir-quote{margin:12px 0;padding:12px 16px;background:#eef6fd;border-left:3px solid #87b4d4;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere}
+
+.ir-kind-D{background:#e8f5f8}.ir-temporal{padding:10px 12px;background:#fff5df;color:#79551f;border-left:3px solid #d5a348;line-height:1.8}.ir-member-numbers{font-size:12px;overflow-wrap:anywhere;color:#325b7a;margin:7px 0}
