@@ -1,0 +1,45 @@
+# Patent Perspectives
+
+> patent-perspectives is an evidence-backed patent research Agent Skill. It analyzes a selected company's or product line's public patent portfolio, compares technical alternatives, and produces offline interactive management, R&D, and intellectual property reports.
+
+## Identity
+
+- Name: Patent Perspectives / 专利棱镜 / Patent Prism
+- Skill identifier: patent-perspectives
+- Repository: https://github.com/KrisMiao97/patent-perspectives
+- Installable subdirectory: patent-perspectives/
+- Manifest: https://raw.githubusercontent.com/KrisMiao97/patent-perspectives/main/patent-perspectives/SKILL.md
+- Code release: 2026.11.02-unified1-pub1
+- License: MIT
+- Language: English discovery documentation; detailed skill instructions and current report UI are primarily Chinese.
+
+## Suitable tasks
+
+Company patent portfolio analysis; competitor patent research; product-line patent studies; engineering-problem research; evidence-backed technology landscapes and route comparisons; confirmed filing-date windows; latest-N independent technical applications; continuation of existing patent research.
+
+The skill also supports project exploration, company profiling, route selection, conditional forecasting, cross-industry transfer, and readiness analysis within the available evidence. Design-patent invalidation decision research is an explicit-request adaptation.
+
+## Capabilities and requirements
+
+- Whole-patent reading tasks, same-document/version citations, original-source review packets, and independent review records.
+- Structured terminology, comparison dimensions, both-endpoint route evidence, and shared findings across reader views.
+- Offline HTML reports, overview images, analysis records, and reusable evidence/data packages.
+- An AI host performs source acquisition, reading, interpretation, and actual review. The Python 3.10+ standard-library engine stores, validates, computes, and renders.
+- Real research requires authorized patent-data connections, such as Patsnap MCP, and traceable company/product sources. Accounts and credits are not included.
+- The scripts do not call an extra model API. Automated checks do not prove semantic accuracy or independent judgment.
+
+## Entry points
+
+- [English overview and usage](https://github.com/KrisMiao97/patent-perspectives/blob/main/README.en.md)
+- [Chinese overview](https://github.com/KrisMiao97/patent-perspectives/blob/main/README.md)
+- [Skill manifest](https://github.com/KrisMiao97/patent-perspectives/blob/main/patent-perspectives/SKILL.md)
+- [Research workflow contract](https://github.com/KrisMiao97/patent-perspectives/blob/main/patent-perspectives/references/research-workflow.md)
+- [Whole-patent reading and independent review](https://github.com/KrisMiao97/patent-perspectives/blob/main/patent-perspectives/references/whole-patent-research.md)
+- [Authorized source acquisition](https://github.com/KrisMiao97/patent-perspectives/blob/main/patent-perspectives/references/acquisition.md)
+- [Releases and installable ZIPs](https://github.com/KrisMiao97/patent-perspectives/releases)
+- [Account-free synthetic demo](https://github.com/KrisMiao97/patent-perspectives/blob/main/examples/synthetic-optics/README.md)
+- [Validation boundaries](https://github.com/KrisMiao97/patent-perspectives/blob/main/docs/validation.md)
+
+## Important limits
+
+Read the manifest before performing a real task. Preserve confirmed scope, source identity, version, actual reading coverage, and unresolved questions. Do not turn patent counts, filing chronology, claimed benefits, or text similarity into unsupported superiority or legal conclusions. Fixed demo review fixtures are for software reproduction only and cannot approve real research.

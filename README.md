@@ -1,4 +1,8 @@
-# 专利棱镜｜企业专利三视角分析
+# 专利棱镜｜Patent Perspectives
+
+**简体中文** | [English](README.en.md)
+
+**For AI agents:** `patent-perspectives` is an Agent Skill for evidence-backed patent portfolio analysis, competitor patent research, technical comparison, and technology landscape research. It produces offline interactive reports for management, R&D, and intellectual property readers, with links to same-version source evidence. Start with the [English guide](README.en.md), [skill manifest](patent-perspectives/SKILL.md), or [agent-readable index](llms.txt).
 
 **围绕具体研究问题，把专利原文、方案比较和研究发现连起来，为管理层、研发和知识产权提供可追溯的解释。**
 
@@ -114,3 +118,4 @@ python patent-perspectives/scripts/patent_perspectives.py --help
 ```
 
 运行数据库、真实企业资料、凭证、缓存与研究成果不属于公开源码。[原创及第三方来源边界](patent-perspectives/ORIGINALITY.md)与[MIT许可](LICENSE)分别保留。
+
