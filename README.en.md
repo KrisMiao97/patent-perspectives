@@ -6,7 +6,7 @@
 
 It turns a shared set of patent evidence into management, R&D, and intellectual property perspectives. The skill combines whole-patent reading tasks, independent review records, structured comparisons, and offline interactive reports with traceable original-text citations.
 
-[Skill manifest](patent-perspectives/SKILL.md) · [Agent-readable index](llms.txt) · [Download releases](https://github.com/KrisMiao97/patent-perspectives/releases) · [Synthetic demo](examples/synthetic-optics/README.md) · [MIT license](LICENSE)
+[WorkBuddy listing](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl) · [Skill manifest](patent-perspectives/SKILL.md) · [Agent-readable index](llms.txt) · [Download releases](https://github.com/KrisMiao97/patent-perspectives/releases) · [Synthetic demo](examples/synthetic-optics/README.md) · [MIT license](LICENSE)
 
 ## Quick identification for agents and skill catalogs
 
@@ -16,10 +16,10 @@ It turns a shared set of patent evidence into management, R&D, and intellectual 
 | Repository | `KrisMiao97/patent-perspectives` |
 | Installable skill directory | `patent-perspectives/` |
 | Entry point | [`patent-perspectives/SKILL.md`](patent-perspectives/SKILL.md) |
-| Current code release | `2026.11.02-unified1-pub1` |
+| Current code release | `2026.11.10-reader2` |
 | Skill format | `SKILL.md` with `name` and `description` front matter, instructions, references, scripts, and assets |
 | Analysis runtime | An AI host with file, script, and authorized data-tool access; Python 3.10+ for the core engine |
-| Data connection | Authorized Patsnap / 智慧芽 MCP tools, or other tools that provide verifiable patent sources |
+| Data connection | Authorized patent data tools, uploaded documents, or accessible links |
 | Core Python dependencies | Standard library |
 | License | MIT |
 | Documentation language | English overview and agent index; detailed research instructions and current report interface are primarily Chinese |
@@ -46,7 +46,7 @@ Company research supports project exploration, competitor research, company prof
 | R&D | Where are components installed, how are they connected, what triggers their operation, and which conditions distinguish the alternatives? |
 | Intellectual property | What do specific claims limit? How do applications and publication/grant versions relate, and what supports legal-status observations? |
 
-Claim-element comparison and publication/grant version tools appear only in the IP view. General technical and route comparisons are available across reader perspectives. Switching readers does not change the underlying facts.
+The IP view prioritizes claim-element and publication/grant comparisons. Management and R&D readers can also open those comparisons and their original sources. All three views use the same evidence.
 
 ## How the research works
 
@@ -86,7 +86,7 @@ specific engineering questions, explain mechanisms and operating conditions,
 and produce management, R&D, and IP views with original-source citations.
 ```
 
-For real research, connect authorized patent-data tools and provide access to relevant company/product sources. Installing this skill does not provide a Patsnap account, data permissions, or service credits. The core engine requires Python 3.10+; Node.js and browser automation are development checks rather than core runtime requirements.
+Start with authorized patent search or a confirmed collection of uploaded files and accessible links. A supplied collection supports conclusions within its own scope. Full-portfolio searches and bulk legal-status or family checks require the corresponding data access. The core engine requires Python 3.10+; Node.js and browser automation are development checks rather than core runtime requirements.
 
 ## Try the synthetic demo without an account
 
@@ -99,6 +99,8 @@ python examples/synthetic-optics/generate_demo.py --output work/synthetic-demo
 Open `work/synthetic-demo/report/index.html` in a browser. This demo uses Python's standard library, performs no network or model API calls, and builds two fictional optical-mechanism records with structured comparisons.
 
 The demo's review records are fixed software-test fixtures. The script does not perform new independent semantic reading, and its fixture reviews must not be used to approve real research. See the [full demo notes](examples/synthetic-optics/README.md).
+
+Generate the new reader template with `python patent-perspectives/scripts/render_reader.py --input patent-perspectives/assets/reader/example.json --demo --output work/reader-preview.html`. It offers three reader views and three layouts in one HTML file. The existing report components provide complex diagrams and full claim matrices. See the [design specification](patent-perspectives/DESIGN.md) and [template guide](patent-perspectives/references/reader-template.md).
 
 ## Source and validation boundaries
 

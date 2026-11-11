@@ -5,7 +5,15 @@ import argparse, collections, datetime as dt, hashlib, importlib.util, json, re,
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 SCHEMA_VERSION=1
-SKILL_RELEASE="2026.11.02-unified1-pub1"
+SKILL_RELEASE="2026.11.10-reader2"
+def materials_module():
+    spec=importlib.util.spec_from_file_location("patent_materials",Path(__file__).with_name("materials.py"))
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
+
+def material_engine():
+    from types import SimpleNamespace
+    return SimpleNamespace(**globals())
+
 ROLES=("management","rd","ip")
 FIELDS=("application_field","technical_problem","technical_means","components","relationships","steps","conditions","claimed_effects")
 SECRET=re.compile(r"^((?:x[-_])?api[_-]?key|authorization|(?:access[_-]?|refresh[_-]?)?token|password|(?:client[_-]?)?secret|bearer)$",re.I)
@@ -136,12 +144,15 @@ def population_review_required(c):
     scope=run_info(c)["scope"]
     return scope.get("require_population_review",not scope.get("synthetic",False)) is True
 def candidate_applications(c):
+    if run_info(c)["scope"].get("acquisition_mode")=="materials" and get_meta(c,"material_manifest"):
+        return rows_data(c,"applications")
     ordinary={q["id"] for q in c.execute("SELECT id,request FROM queries") if not json.loads(q["request"]).get("verification_only",False)}
     appids={r["application_id"] for r in c.execute("SELECT q.query_id,p.application_id FROM query_results q JOIN publications p ON p.id=q.publication_id") if r["query_id"] in ordinary}
     return [a for a in rows_data(c,"applications") if a["id"] in appids]
 
 def application_population_status(c,appid):
     ordinary=any(not json.loads(r[0]).get("verification_only",False) for r in c.execute("SELECT q.request FROM queries q JOIN query_results qr ON qr.query_id=q.id JOIN publications p ON p.id=qr.publication_id WHERE p.application_id=?",(appid,)))
+    if run_info(c)["scope"].get("acquisition_mode")=="materials" and get_meta(c,"material_manifest"):ordinary=True
     if not ordinary:return "verification_only"
     row=c.execute("SELECT data FROM population_reviews WHERE application_id=?",(appid,)).fetchone()
     review=json.loads(row[0]) if row else None
@@ -907,7 +918,8 @@ def import_document(c,p):
     source_class=p.get("source_class") or ("patsnap" if "patsnap" in p["source_provider"].lower() or "智慧芽" in p["source_provider"] else "official")
     if source_class=="official": require(url and source_is_official(url),"Official fallback must use a verified patent-office domain")
     if source_class=="synthetic": require(run_info(c)["scope"].get("synthetic") is True,"Synthetic source cannot enter a real run")
-    require(source_class in ("patsnap","official","synthetic","original_patent_document_mirror"),"Unsupported source class")
+    require(source_class in ("patsnap","official","synthetic","original_patent_document_mirror","uploaded_patent_document"),"Unsupported source class")
+    if source_class=="uploaded_patent_document":materials_module().verify_document(c,p,material_engine())
     mirror_proof=None
     if source_class=="original_patent_document_mirror":
         mirror_proof,_=original_claims_module().verify(c,p,original_claims_context())
@@ -1395,34 +1407,43 @@ def validate_run(c):
     check(bool(included),"no_entities","No confirmed included entities")
     if run.get("scope_confirmed"):
         check(run.get("entity_snapshot_hash")==digest(sorted(included,key=lambda x:x["id"])),"scope_changed","Entity snapshot changed")
-    queries=list(c.execute("SELECT * FROM queries"))
-    query_sets={s["id"]:s for s in rows_data(c,"query_sets")};contract=get_meta(c,"query_plan_contract")
-    query_sets_required=run["scope"].get("require_query_sets",not run["scope"].get("synthetic",False))
-    valid_sets={};cache={}
-    if query_sets_required:check(bool(contract),"query_plan_unconfirmed","Real full-population run needs a frozen logical query plan")
-    for sid,spec in query_sets.items():
-        try:valid_sets[sid]=query_set_evaluate(c,spec,cache=cache)
-        except (ValidationError,TypeError,KeyError,ValueError) as exc:check(False,"query_set_invalid",sid+": "+str(exc))
-    required_specs=contract.get("required_query_sets",[]) if contract else []
-    for spec in required_specs:
-        actual=query_sets.get(spec["id"])
-        check(actual is not None,"required_query_set_missing",spec["id"])
-        if actual:check(all(actual.get(k)==spec.get(k) for k in ("id","entity_id","kind","query_text")),"query_set_contract_changed",spec["id"])
-        check(spec["id"] in valid_sets,"required_query_set_incomplete",spec["id"])
-    for e in included:
-        for kind in ("original","current"):
-            if query_sets_required:
-                qs=[s for s in required_specs if s["entity_id"]==e["id"] and s["kind"]==kind]
-                check(bool(qs),"missing_query_set",e["id"]+":"+kind)
-                check(bool(qs) and all(s["id"] in valid_sets for s in qs),"query_set_incomplete",e["id"]+":"+kind)
-                continue
-            qs=[q for q in queries if q["entity_id"]==e["id"] and q["kind"]==kind and not json.loads(q["request"]).get("verification_only",False)]
-            check(bool(qs),"missing_query",e["id"]+":"+kind)
-            check(bool(qs) and all(q["complete"] for q in qs),"query_incomplete",e["id"]+":"+kind)
-    check(bool(queries),"no_queries","No query evidence")
-    for q in queries:
-        n=c.execute("SELECT count(*) FROM query_results WHERE query_id=?",(q["id"],)).fetchone()[0]
-        check(bool(q["complete"]) and n==q["expected_count"]==q["observed_count"],"query_count_mismatch",q["id"])
+    material_mode=run["scope"].get("acquisition_mode")=="materials"
+    if material_mode:
+        try:materials_module().validate_manifest(c,material_engine())
+        except (ValidationError,OSError,KeyError,TypeError) as exc:check(False,"material_scope_invalid",str(exc))
+        warnings.append({"code":"material_scope_only","detail":"Completion covers the frozen supplied material catalogue, not company-wide patent coverage."})
+    else:
+        queries=list(c.execute("SELECT * FROM queries"))
+        query_sets={s["id"]:s for s in rows_data(c,"query_sets")};contract=get_meta(c,"query_plan_contract")
+        query_sets_required=run["scope"].get("require_query_sets",not run["scope"].get("synthetic",False))
+        valid_sets={};cache={}
+        if query_sets_required:check(bool(contract),"query_plan_unconfirmed","Real full-population run needs a frozen logical query plan")
+        for sid,spec in query_sets.items():
+            try:valid_sets[sid]=query_set_evaluate(c,spec,cache=cache)
+            except (ValidationError,TypeError,KeyError,ValueError) as exc:check(False,"query_set_invalid",sid+": "+str(exc))
+        required_specs=contract.get("required_query_sets",[]) if contract else []
+        for spec in required_specs:
+            actual=query_sets.get(spec["id"])
+            check(actual is not None,"required_query_set_missing",spec["id"])
+            if actual:check(all(actual.get(k)==spec.get(k) for k in ("id","entity_id","kind","query_text")),"query_set_contract_changed",spec["id"])
+            check(spec["id"] in valid_sets,"required_query_set_incomplete",spec["id"])
+        for e in included:
+            for kind in ("original","current"):
+                if query_sets_required:
+                    qs=[s for s in required_specs if s["entity_id"]==e["id"] and s["kind"]==kind]
+                    check(bool(qs),"missing_query_set",e["id"]+":"+kind)
+                    check(bool(qs) and all(s["id"] in valid_sets for s in qs),"query_set_incomplete",e["id"]+":"+kind)
+                    continue
+                qs=[q for q in queries if q["entity_id"]==e["id"] and q["kind"]==kind and not json.loads(q["request"]).get("verification_only",False)]
+                check(bool(qs),"missing_query",e["id"]+":"+kind)
+                check(bool(qs) and all(q["complete"] for q in qs),"query_incomplete",e["id"]+":"+kind)
+        check(bool(queries),"no_queries","No query evidence")
+        for q in queries:
+            n=c.execute("SELECT count(*) FROM query_results WHERE query_id=?",(q["id"],)).fetchone()[0]
+            check(bool(q["complete"]) and n==q["expected_count"]==q["observed_count"],"query_count_mismatch",q["id"])
+    if get_meta(c,"material_manifest") and not material_mode:
+        try:materials_module().validate_manifest(c,material_engine())
+        except (ValidationError,OSError,KeyError,TypeError) as exc:check(False,"material_source_invalid",str(exc))
     states=population_state(c)
     temporal=temporal_scope_module().window_states(c,states)
     selection=run["scope"].get("selection")
@@ -1772,7 +1793,7 @@ def package_skill(output):
     require(not dest.is_relative_to(root),"ZIP must be outside skill directory")
     dest.parent.mkdir(parents=True,exist_ok=True)
     allowed_dirs={"scripts","references","assets","agents","tests"}
-    allowed_files={"SKILL.md","ORIGINALITY.md","README.md","LICENSE","LICENSE.txt","CHANGELOG.md"}
+    allowed_files={"SKILL.md","DESIGN.md","ORIGINALITY.md","README.md","LICENSE","LICENSE.txt","CHANGELOG.md"}
     files=[]
     for p in root.rglob("*"):
         if not p.is_file() or any(part in p.parts for part in ("__pycache__",".runtime",".pytest_cache",".git")) or p.suffix in (".pyc",".sqlite",".db",".zip"):continue
@@ -1788,7 +1809,7 @@ def cli(argv=None):
     parser.add_argument("--db",help="Run SQLite path; run files must remain outside the skill package")
     sub=parser.add_subparsers(dest="command",required=True)
     p=sub.add_parser("init");p.add_argument("--company",required=True);p.add_argument("--as-of");p.add_argument("--scope")
-    for name in ("entities-import","scope-confirm","capability-import","search-import","query-set-import","query-plan-confirm","bibliography-import","auxiliary-import","population-review-import","registration-member-import","document-import","document-review-import","analysis-import","insights-import","relations-import","semantic-review-import","research-plan-import","research-review-import","research-import"):
+    for name in ("entities-import","scope-confirm","capability-import","materials-import","search-import","query-set-import","query-plan-confirm","bibliography-import","auxiliary-import","population-review-import","registration-member-import","document-import","document-review-import","analysis-import","insights-import","relations-import","semantic-review-import","research-plan-import","research-review-import","research-import"):
         p=sub.add_parser(name);p.add_argument("--input",required=True)
     p=sub.add_parser("query-complete");p.add_argument("--query-id",required=True)
     p=sub.add_parser("export-work");p.add_argument("--output",required=True);p.add_argument("--max-primary-characters",type=int,help="Defer whole documents exceeding this user-chosen character limit; never truncate. Not a token budget.")
@@ -1810,6 +1831,7 @@ def cli(argv=None):
                 run_info(conn)
                 if args.command=="entities-import":result=import_entities(conn,read_input(args.input))
                 elif args.command=="scope-confirm":result=scope_confirm(conn,read_input(args.input))
+                elif args.command=="materials-import":result=materials_module().import_manifest(conn,read_input(args.input),material_engine())
                 elif args.command=="capability-import":result=import_capabilities(conn,read_input(args.input))
                 elif args.command=="search-import":result=import_search(conn,read_input(args.input))
                 elif args.command=="query-set-import":result=import_query_sets(conn,read_input(args.input))

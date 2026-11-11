@@ -27,7 +27,7 @@ research-export --output research-export.json
 
 ## 输入契约
 
-`research-input.json` 是兼容扩展，不替换 `analysis-import`、普通 `comparisons` 或IP专属 `claim_comparisons`。导入在一个SQLite事务内完成；结构或关联错误全部回滚。
+`research-input.json` 是兼容扩展，不替换 `analysis-import`、普通 `comparisons` 或专利视角前置、各角色共享的 `claim_comparisons`。导入在一个SQLite事务内完成；结构或关联错误全部回滚。
 
 | 字段 | 要求 |
 |---|---|
@@ -59,4 +59,4 @@ research-export --output research-export.json
 
 `research-export` 返回机器可读输入及已存绑定，用于[数据复用](data-reuse.md)，不是重新审阅的授权或证明。页面从数据库生成，`data/research.js` 只是离线展示副本，不允许手改网页补入新结论。
 
-按[报告规范](reporting.md)提供问题、术语、技术比较、关系与发现的阅读入口。问题筛选只影响已说明的固定案例集，目录筛选不重写研究范围。过程问题、审阅进度和恢复事项仍统一进入独立《分析记录与后续补充说明》。另验离线、移动目录、角色隔离、问题筛选、原文跳转及窄屏；静态检查不能代替真实浏览器或语义审查。
+按[报告规范](reporting.md)提供问题、术语、技术比较、关系与发现的阅读入口。问题筛选只影响已说明的固定案例集，目录筛选不重写研究范围。过程问题、审阅进度和恢复事项仍统一进入独立《分析记录与后续补充说明》。另验离线、移动目录、角色切换后的内容和阅读位置、问题筛选、原文跳转及窄屏；静态检查不能代替真实浏览器或语义审查。

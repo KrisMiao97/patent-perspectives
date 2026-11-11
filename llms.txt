@@ -9,7 +9,7 @@
 - Repository: https://github.com/KrisMiao97/patent-perspectives
 - Installable subdirectory: patent-perspectives/
 - Manifest: https://raw.githubusercontent.com/KrisMiao97/patent-perspectives/main/patent-perspectives/SKILL.md
-- Code release: 2026.11.02-unified1-pub1
+- Code release: 2026.11.10-reader2
 - License: MIT
 - Language: English discovery documentation; detailed skill instructions and current report UI are primarily Chinese.
 
@@ -25,10 +25,14 @@ The skill also supports project exploration, company profiling, route selection,
 - Structured terminology, comparison dimensions, both-endpoint route evidence, and shared findings across reader views.
 - Offline HTML reports, overview images, analysis records, and reusable evidence/data packages.
 - An AI host performs source acquisition, reading, interpretation, and actual review. The Python 3.10+ standard-library engine stores, validates, computes, and renders.
-- Real research requires authorized patent-data connections, such as Patsnap MCP, and traceable company/product sources. Accounts and credits are not included.
+- Use authorized patent data connections or verifiable supplied files and accessible links. Report material scope separately from company-wide search coverage.
 - The scripts do not call an extra model API. Automated checks do not prove semantic accuracy or independent judgment.
 
 ## Entry points
+
+- [WorkBuddy listing](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl)
+- [Reader design specification](https://github.com/KrisMiao97/patent-perspectives/blob/main/patent-perspectives/DESIGN.md)
+- [Material-based research](https://github.com/KrisMiao97/patent-perspectives/blob/main/patent-perspectives/references/material-research.md)
 
 - [English overview and usage](https://github.com/KrisMiao97/patent-perspectives/blob/main/README.en.md)
 - [Chinese overview](https://github.com/KrisMiao97/patent-perspectives/blob/main/README.md)

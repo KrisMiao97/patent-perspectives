@@ -1,0 +1,1124 @@
+{
+  "synthetic": true,
+  "company": "星澜设备（虚构）",
+  "business": "研究对象是用于循环供水的泵与阀门。下面比较申请方向和控制方法，帮助三个角色从同一份材料得到各自需要的答案。",
+  "scope": {
+    "mode": "materials",
+    "label": "已确认的泵阀材料清单；不代表企业全量",
+    "as_of": "2026-10-01",
+    "status_observed_at": "本示例未核验法律状态",
+    "disclosure_date": null,
+    "partial_years": [
+      "2026"
+    ]
+  },
+  "records": [
+    {
+      "id": "0",
+      "title": "旁通阀调节装置 · 合成 1",
+      "publication": "TEST-1",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2019-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s0"
+      ]
+    },
+    {
+      "id": "1",
+      "title": "压力反馈供水装置 · 合成 2",
+      "publication": "TEST-2",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2020-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s1"
+      ]
+    },
+    {
+      "id": "2",
+      "title": "旁通阀调节装置 · 合成 3",
+      "publication": "TEST-3",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2021-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s2"
+      ]
+    },
+    {
+      "id": "3",
+      "title": "压力反馈供水装置 · 合成 4",
+      "publication": "TEST-4",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2022-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s3"
+      ]
+    },
+    {
+      "id": "4",
+      "title": "旁通阀调节装置 · 合成 5",
+      "publication": "TEST-5",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2023-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s4"
+      ]
+    },
+    {
+      "id": "5",
+      "title": "压力反馈供水装置 · 合成 6",
+      "publication": "TEST-6",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2024-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s5"
+      ]
+    },
+    {
+      "id": "6",
+      "title": "旁通阀调节装置 · 合成 7",
+      "publication": "TEST-7",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2025-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s6"
+      ]
+    },
+    {
+      "id": "7",
+      "title": "压力反馈供水装置 · 合成 8",
+      "publication": "TEST-8",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2019-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s7"
+      ]
+    },
+    {
+      "id": "8",
+      "title": "旁通阀调节装置 · 合成 9",
+      "publication": "TEST-9",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2020-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s8"
+      ]
+    },
+    {
+      "id": "9",
+      "title": "压力反馈供水装置 · 合成 10",
+      "publication": "TEST-10",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2021-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s9"
+      ]
+    },
+    {
+      "id": "10",
+      "title": "旁通阀调节装置 · 合成 11",
+      "publication": "TEST-11",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2022-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s10"
+      ]
+    },
+    {
+      "id": "11",
+      "title": "压力反馈供水装置 · 合成 12",
+      "publication": "TEST-12",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2023-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s11"
+      ]
+    },
+    {
+      "id": "12",
+      "title": "旁通阀调节装置 · 合成 13",
+      "publication": "TEST-13",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2024-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s12"
+      ]
+    },
+    {
+      "id": "13",
+      "title": "压力反馈供水装置 · 合成 14",
+      "publication": "TEST-14",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2025-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s13"
+      ]
+    },
+    {
+      "id": "14",
+      "title": "旁通阀调节装置 · 合成 15",
+      "publication": "TEST-15",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2019-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s14"
+      ]
+    },
+    {
+      "id": "15",
+      "title": "压力反馈供水装置 · 合成 16",
+      "publication": "TEST-16",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2020-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s15"
+      ]
+    },
+    {
+      "id": "16",
+      "title": "旁通阀调节装置 · 合成 17",
+      "publication": "TEST-17",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2021-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s16"
+      ]
+    },
+    {
+      "id": "17",
+      "title": "压力反馈供水装置 · 合成 18",
+      "publication": "TEST-18",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2022-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s17"
+      ]
+    },
+    {
+      "id": "18",
+      "title": "旁通阀调节装置 · 合成 19",
+      "publication": "TEST-19",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2023-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s18"
+      ]
+    },
+    {
+      "id": "19",
+      "title": "压力反馈供水装置 · 合成 20",
+      "publication": "TEST-20",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2024-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s19"
+      ]
+    },
+    {
+      "id": "20",
+      "title": "旁通阀调节装置 · 合成 21",
+      "publication": "TEST-21",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2025-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s20"
+      ]
+    },
+    {
+      "id": "21",
+      "title": "压力反馈供水装置 · 合成 22",
+      "publication": "TEST-22",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2019-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s21"
+      ]
+    },
+    {
+      "id": "22",
+      "title": "旁通阀调节装置 · 合成 23",
+      "publication": "TEST-23",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2020-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s22"
+      ]
+    },
+    {
+      "id": "23",
+      "title": "压力反馈供水装置 · 合成 24",
+      "publication": "TEST-24",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2021-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s23"
+      ]
+    },
+    {
+      "id": "24",
+      "title": "旁通阀调节装置 · 合成 25",
+      "publication": "TEST-25",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2022-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s24"
+      ]
+    },
+    {
+      "id": "25",
+      "title": "压力反馈供水装置 · 合成 26",
+      "publication": "TEST-26",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2023-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s25"
+      ]
+    },
+    {
+      "id": "26",
+      "title": "旁通阀调节装置 · 合成 27",
+      "publication": "TEST-27",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2024-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s26"
+      ]
+    },
+    {
+      "id": "27",
+      "title": "压力反馈供水装置 · 合成 28",
+      "publication": "TEST-28",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2025-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s27"
+      ]
+    },
+    {
+      "id": "28",
+      "title": "旁通阀调节装置 · 合成 29",
+      "publication": "TEST-29",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2019-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s28"
+      ]
+    },
+    {
+      "id": "29",
+      "title": "压力反馈供水装置 · 合成 30",
+      "publication": "TEST-30",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2020-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s29"
+      ]
+    },
+    {
+      "id": "30",
+      "title": "旁通阀调节装置 · 合成 31",
+      "publication": "TEST-31",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2021-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s30"
+      ]
+    },
+    {
+      "id": "31",
+      "title": "压力反馈供水装置 · 合成 32",
+      "publication": "TEST-32",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2022-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s31"
+      ]
+    },
+    {
+      "id": "32",
+      "title": "旁通阀调节装置 · 合成 33",
+      "publication": "TEST-33",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2023-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s32"
+      ]
+    },
+    {
+      "id": "33",
+      "title": "压力反馈供水装置 · 合成 34",
+      "publication": "TEST-34",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2024-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s33"
+      ]
+    },
+    {
+      "id": "34",
+      "title": "旁通阀调节装置 · 合成 35",
+      "publication": "TEST-35",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2025-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s34"
+      ]
+    },
+    {
+      "id": "35",
+      "title": "压力反馈供水装置 · 合成 36",
+      "publication": "TEST-36",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2019-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s35"
+      ]
+    },
+    {
+      "id": "36",
+      "title": "旁通阀调节装置 · 合成 37",
+      "publication": "TEST-37",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2020-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s36"
+      ]
+    },
+    {
+      "id": "37",
+      "title": "压力反馈供水装置 · 合成 38",
+      "publication": "TEST-38",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2021-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s37"
+      ]
+    },
+    {
+      "id": "38",
+      "title": "旁通阀调节装置 · 合成 39",
+      "publication": "TEST-39",
+      "type": "invention",
+      "product": "旁通阀",
+      "filing_date": "2022-06-01",
+      "status": "未知",
+      "read_complete": true,
+      "evidence_ids": [
+        "s38"
+      ]
+    },
+    {
+      "id": "39",
+      "title": "压力反馈供水装置 · 合成 40",
+      "publication": "TEST-40",
+      "type": "invention",
+      "product": "泵控制",
+      "filing_date": "2023-06-01",
+      "status": "未知",
+      "read_complete": false,
+      "evidence_ids": [
+        "s39"
+      ]
+    },
+    {
+      "id": "40",
+      "title": "旁通阀调节装置 · 合成 41",
+      "publication": "TEST-41",
+      "type": "design",
+      "product": "旁通阀",
+      "filing_date": "2024-06-01",
+      "status": "未知",
+      "read_complete": false,
+      "evidence_ids": [
+        "s40"
+      ]
+    },
+    {
+      "id": "41",
+      "title": "压力反馈供水装置 · 合成 42",
+      "publication": "TEST-42",
+      "type": "design",
+      "product": "泵控制",
+      "filing_date": "2025-06-01",
+      "status": "未知",
+      "read_complete": false,
+      "evidence_ids": [
+        "s41"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "s0",
+      "title": "合成专利原文 1",
+      "publication": "TEST-1",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s1",
+      "title": "合成专利原文 2",
+      "publication": "TEST-2",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s2",
+      "title": "合成专利原文 3",
+      "publication": "TEST-3",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s3",
+      "title": "合成专利原文 4",
+      "publication": "TEST-4",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s4",
+      "title": "合成专利原文 5",
+      "publication": "TEST-5",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s5",
+      "title": "合成专利原文 6",
+      "publication": "TEST-6",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s6",
+      "title": "合成专利原文 7",
+      "publication": "TEST-7",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s7",
+      "title": "合成专利原文 8",
+      "publication": "TEST-8",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s8",
+      "title": "合成专利原文 9",
+      "publication": "TEST-9",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s9",
+      "title": "合成专利原文 10",
+      "publication": "TEST-10",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s10",
+      "title": "合成专利原文 11",
+      "publication": "TEST-11",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s11",
+      "title": "合成专利原文 12",
+      "publication": "TEST-12",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s12",
+      "title": "合成专利原文 13",
+      "publication": "TEST-13",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s13",
+      "title": "合成专利原文 14",
+      "publication": "TEST-14",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s14",
+      "title": "合成专利原文 15",
+      "publication": "TEST-15",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s15",
+      "title": "合成专利原文 16",
+      "publication": "TEST-16",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s16",
+      "title": "合成专利原文 17",
+      "publication": "TEST-17",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s17",
+      "title": "合成专利原文 18",
+      "publication": "TEST-18",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s18",
+      "title": "合成专利原文 19",
+      "publication": "TEST-19",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s19",
+      "title": "合成专利原文 20",
+      "publication": "TEST-20",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s20",
+      "title": "合成专利原文 21",
+      "publication": "TEST-21",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s21",
+      "title": "合成专利原文 22",
+      "publication": "TEST-22",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s22",
+      "title": "合成专利原文 23",
+      "publication": "TEST-23",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s23",
+      "title": "合成专利原文 24",
+      "publication": "TEST-24",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s24",
+      "title": "合成专利原文 25",
+      "publication": "TEST-25",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s25",
+      "title": "合成专利原文 26",
+      "publication": "TEST-26",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s26",
+      "title": "合成专利原文 27",
+      "publication": "TEST-27",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s27",
+      "title": "合成专利原文 28",
+      "publication": "TEST-28",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s28",
+      "title": "合成专利原文 29",
+      "publication": "TEST-29",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s29",
+      "title": "合成专利原文 30",
+      "publication": "TEST-30",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s30",
+      "title": "合成专利原文 31",
+      "publication": "TEST-31",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s31",
+      "title": "合成专利原文 32",
+      "publication": "TEST-32",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s32",
+      "title": "合成专利原文 33",
+      "publication": "TEST-33",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s33",
+      "title": "合成专利原文 34",
+      "publication": "TEST-34",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s34",
+      "title": "合成专利原文 35",
+      "publication": "TEST-35",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s35",
+      "title": "合成专利原文 36",
+      "publication": "TEST-36",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s36",
+      "title": "合成专利原文 37",
+      "publication": "TEST-37",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s37",
+      "title": "合成专利原文 38",
+      "publication": "TEST-38",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s38",
+      "title": "合成专利原文 39",
+      "publication": "TEST-39",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s39",
+      "title": "合成专利原文 40",
+      "publication": "TEST-40",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    },
+    {
+      "id": "s40",
+      "title": "合成专利原文 41",
+      "publication": "TEST-41",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。",
+      "text": "合成原文：阀芯安装在旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯沿其轴线移动并压缩弹簧，旁通口随之打开；进口压力下降后，弹簧使阀芯回到关闭位置。"
+    },
+    {
+      "id": "s41",
+      "title": "合成专利原文 42",
+      "publication": "TEST-42",
+      "version": "完整权利要求 · 合成测试",
+      "locator": "权利要求 1",
+      "quote": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。",
+      "text": "合成原文：泵出口安装压力传感器，控制器在压力低于设定值时增加电机转速。"
+    }
+  ],
+  "roles": {
+    "management": {
+      "title": "技术申请均分在泵控制与旁通阀，两条线没有数量侧重",
+      "answer": "材料中的 40 件技术申请各有 20 件涉及这两条产品线。泵控制围绕动力调节，旁通阀围绕流路调节；数量相同不代表两类技术的商业价值相同。",
+      "scope_label": "本示例两类方案，法律状态未核验",
+      "reasons": [
+        {
+          "title": "泵控制：20 件，占技术申请的一半",
+          "text": "传感器位于泵出口。控制器读取压力后，在压力低于设定值时增加电机转速。",
+          "evidence_ids": [
+            "s1",
+            "s3",
+            "s5",
+            "s7",
+            "s9",
+            "s11",
+            "s13",
+            "s15",
+            "s17",
+            "s19",
+            "s21",
+            "s23",
+            "s25",
+            "s27",
+            "s29",
+            "s31",
+            "s33",
+            "s35",
+            "s37",
+            "s39"
+          ]
+        },
+        {
+          "title": "旁通阀：20 件，占技术申请的一半",
+          "text": "阀芯位于旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯压缩弹簧，打开旁通口；压力下降后弹簧使阀芯关闭。",
+          "evidence_ids": [
+            "s0",
+            "s2",
+            "s4",
+            "s6",
+            "s8",
+            "s10",
+            "s12",
+            "s14",
+            "s16",
+            "s18",
+            "s20",
+            "s22",
+            "s24",
+            "s26",
+            "s28",
+            "s30",
+            "s32",
+            "s34",
+            "s36",
+            "s38"
+          ]
+        }
+      ]
+    },
+    "rd": {
+      "title": "泵在低压时加速，旁通阀在高压时打开",
+      "answer": "两类方案都响应压力变化，但触发条件和动作不同：泵控制读取出口压力后改变电机转速；旁通阀由进口液压力推动阀芯打开流路。",
+      "scope_label": "本示例两类方案，法律状态未核验",
+      "reasons": [
+        {
+          "title": "泵控制：低压时增加转速",
+          "text": "传感器位于泵出口。控制器读取压力后，在压力低于设定值时增加电机转速。",
+          "evidence_ids": [
+            "s1"
+          ]
+        },
+        {
+          "title": "旁通阀：移动阀芯改变开口",
+          "text": "阀芯位于旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯压缩弹簧，打开旁通口；压力下降后弹簧使阀芯关闭。",
+          "evidence_ids": [
+            "s0"
+          ]
+        }
+      ]
+    },
+    "ip": {
+      "title": "泵控制限定低压调速，旁通阀限定受压开阀和弹簧复位",
+      "answer": "两份合成权利要求的限制分别落在传感器与控制器的配合、阀芯与弹簧的配合。其触发压力和执行部件不同，不能仅凭“压力调节”这一共同用途视为相同保护范围。",
+      "scope_label": "本示例两类方案，法律状态未核验",
+      "reasons": [
+        {
+          "title": "泵控制的限制：出口测压、低压触发、电机加速",
+          "text": "传感器位于泵出口。控制器读取压力后，在压力低于设定值时增加电机转速。",
+          "evidence_ids": [
+            "s1"
+          ]
+        },
+        {
+          "title": "旁通阀的限制：阀体内阀芯、受压开启、弹簧复位",
+          "text": "阀芯位于旁通阀阀体内。进口压力超过设定值时，液压力推动阀芯压缩弹簧，打开旁通口；压力下降后弹簧使阀芯关闭。",
+          "evidence_ids": [
+            "s0"
+          ]
+        }
+      ]
+    }
+  },
+  "orders": {
+    "management": [
+      "layout",
+      "routes",
+      "claims",
+      "directory"
+    ],
+    "rd": [
+      "routes",
+      "layout",
+      "claims",
+      "directory"
+    ],
+    "ip": [
+      "claims",
+      "routes",
+      "directory",
+      "layout"
+    ]
+  },
+  "chapters": [
+    {
+      "id": "layout",
+      "title": "产品布局变化",
+      "kind": "trend",
+      "conclusion": "材料中的 40 件技术申请在泵控制和旁通阀两条产品线上各占一半。",
+      "scope_label": "本示例的泵阀材料",
+      "body": [
+        "两件外观设计在单独目录中，不参与技术申请的占比。以下年度数量与目录一起随筛选变化，可继续查看各年份的对应申请。"
+      ],
+      "evidence_ids": [
+        "s0",
+        "s1"
+      ]
+    },
+    {
+      "id": "routes",
+      "title": "技术方法比较",
+      "kind": "comparison",
+      "conclusion": "泵控制通过改变电机转速调节供水，旁通阀通过改变开口面积调节流路。",
+      "scope_label": "本示例的泵阀材料",
+      "body": [
+        "泵控制需要传感器测得的出口压力和控制器发出的调速指令；旁通阀由进口液压力直接推动阀芯，弹簧负责复位。这是控制链条的差别，材料没有提供同条件性能测试，尚不能比较调压效果。"
+      ],
+      "evidence_ids": [
+        "s0",
+        "s1"
+      ]
+    },
+    {
+      "id": "claims",
+      "title": "权利要求与条件",
+      "kind": "comparison",
+      "conclusion": "泵控制限定出口测压与低压调速；旁通阀限定进口受压开启与弹簧复位。",
+      "scope_label": "本示例的泵阀材料",
+      "body": [
+        "共同的压力调节用途只说明两者可以比较。具体限制仍须分别保留：泵控制的测压位置和触发条件，旁通阀的阀芯安装关系、开启动作及复位结构。原文在下方引用中逐件显示。"
+      ],
+      "evidence_ids": [
+        "s0",
+        "s1"
+      ]
+    },
+    {
+      "id": "directory",
+      "title": "专利目录",
+      "kind": "directory",
+      "conclusion": "目录保留已读与待补材料，未知法律状态不能按有效计算。",
+      "scope_label": "本示例的泵阀材料",
+      "body": [
+        "这些比较解释了具体做法的不同。材料未提供相同条件下的性能测试，不能据此判断哪种方案效果更好。"
+      ],
+      "evidence_ids": [
+        "s0",
+        "s1"
+      ]
+    }
+  ]
+}

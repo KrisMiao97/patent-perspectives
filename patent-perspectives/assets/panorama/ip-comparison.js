@@ -26,10 +26,10 @@
   dialogTop.append(create('strong', '', '权利要求原文与版本'), button('关闭 ×', () => dialog.close()));
   dialog.append(dialogTop, dialogBody); document.body.append(dialog);
   let dialogFocus = null;
-  dialog.addEventListener('close', () => { if (role() === 'ip') dialogFocus?.focus(); });
+  dialog.addEventListener('close', () => { dialogFocus?.focus({preventScroll: true}); });
   function active() { return groups[groupIndex]; }
   function showDocument(column, evidence) {
-    if (role() !== 'ip' || !column.document) return;
+    if (!column.document) return;
     const doc = column.document, chars = Array.from(doc.text);
     dialogBody.replaceChildren(create('h2', '', doc.publication_number), note('文献版本：' + doc.version + '；原文语言：' + doc.language));
     if (evidence && chars.slice(evidence.start, evidence.end).join('') !== evidence.quote) {
@@ -60,7 +60,7 @@
     return node;
   }
   function renderRows() {
-    if (!mounted || role() !== 'ip') return;
+    if (!mounted) return;
     const group = active(), columns = group.cases.filter(c => selected.has(c.id));
     const rows = group.rows.filter(r => !category || r.category === category);
     const table = create('table', 'ipcmp-table'), head = create('thead'), heading = create('tr'), body = create('tbody');
@@ -126,7 +126,7 @@
     host.append(wrap, cards); renderRows();
   }
   function sync() {
-    const show = role() === 'ip' && groups.length > 0;
+    const show = groups.length > 0;
     host.hidden = !show; links.forEach(link => { link.hidden = !show; });
     if (show) { if (!mounted) mount(); }
     else {
@@ -141,6 +141,6 @@
   const requested = new URL(location.href).searchParams.get('role');
   if (['management', 'rd', 'ip'].includes(requested)) document.querySelector('.role-button[data-role="' + requested + '"]')?.click();
   sync();
-  if (role() === 'ip' && location.hash === '#claim-element-comparison') requestAnimationFrame(() => host.scrollIntoView());
+  if (groups.length && location.hash === '#claim-element-comparison') requestAnimationFrame(() => host.scrollIntoView());
   window.PP_CLAIM_COMPARE = {snapshot: () => ({role: role(), visible: !host.hidden, mounted, groupIndex, selected: [...selected], category, layout, dialogOpen: dialog.open})};
 }());

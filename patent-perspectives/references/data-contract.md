@@ -28,7 +28,7 @@
 
 ## 导入顺序与输入
 
-先 init --company，设置 --as-of 和需要的 --scope；随后导入主体、搜索与文档，再导出语义工作。已有运行不重复初始化。范围变化应保存变更并重新对账；更换已冻结范围时建立新运行快照。
+先 init --company，设置 --as-of 和需要的 --scope；随后导入主体、搜索与文档；材料模式用 materials-import 代替搜索导入，再导出语义工作。已有运行不重复初始化。范围变化应保存变更并重新对账；更换已冻结范围时建立新运行快照。
 
 - entities-import：导入主体数组。每条含 id、name、relation，relation 为 root、subsidiary、historical、alias、related 或 excluded。confirmed:true 时必须有 source_url 和 source_locator；补充关系时间和纳入理由。仅有名字不能代表已核验边界；重新导入主体会撤销范围确认。
 - scope-confirm：输入对象为 confirmed:true、basis（核验依据）、reviewed_through（必须与运行 as_of_date 一致）。先导入完整的已核验主体种子及来源；该命令记录边界确认，不能替代企业核查。
@@ -113,7 +113,7 @@ query-id 使用实际导入的 query.id；逐页获取、逐件全文导入与�
 
 `query-plan-confirm --input FILE` 输入 `plan_hash`（完整检索计划的SHA256）和 `required_query_sets` 数组；每项含 id、entity_id、kind、query_text，可保留category。也可仅给 `required_query_set_ids`，此时各逻辑集必须已经存在。显式完整计划允许尚未导入的逻辑集，以便分批续跑，但正式验收会逐项报告缺失；不能因为本次只导入main就忽略计划里的补充检索。确认后计划及要求不可缩减或更换；变更需新运行快照。同一缓存检索若对应多个经核验主体，每个主体有独立的源查询ID和逻辑集ID，原始来源可复用。
 
-真实运行默认要求已冻结逻辑计划。每个确认纳入的root/subsidiary/historical主体必须同时有该计划要求的original与current逻辑集全部通过；alias可以作为检索上下文，但不额外当作独立法人强加覆盖。合成测试未开启逻辑计划时兼容旧普通查询规则。`coverage` 分别显示源queries、verification_queries、logical_query_sets、required_query_sets、候选公开记录以及全部存储的source公开记录；控制记录不会冒充企业拥有专利。逻辑计划和逻辑集变化也会使既有角色结论指纹过期。
+真实检索运行默认要求已冻结逻辑计划；materials 模式改用已确认的材料清单，见[材料研究](material-research.md)。每个确认纳入的root/subsidiary/historical主体必须同时有该计划要求的original与current逻辑集全部通过；alias可以作为检索上下文，但不额外当作独立法人强加覆盖。合成测试未开启逻辑计划时兼容旧普通查询规则。`coverage` 分别显示源queries、verification_queries、logical_query_sets、required_query_sets、候选公开记录以及全部存储的source公开记录；控制记录不会冒充企业拥有专利。逻辑计划和逻辑集变化也会使既有角色结论指纹过期。
 
 ## 同件著录补证
 
@@ -183,3 +183,7 @@ relations-import 的每条记录包含 id、source、target、type、kind、evid
 服务错误保留响应和尝试记录，超限后待外部条件变化再继续。重复导入、重试或中断续跑不得重复计数；更换证据版本或修正分析后需重新验证受影响结论。不得手工修改 SQLite 来绕过门禁。
 
 测试预览仅允许 scope.synthetic=true 的独立测试运行；真实企业数据即便使用 --preview 也不能绕过正式全量验收。命令行 JSON 输出使用 UTF-8，以保留中文主体及技术文本。
+
+## 材料来源
+
+materials-import 的冻结文件与目录契约见[材料研究](material-research.md)。uploaded_patent_document 仅用于已登记材料的 claims/description，须有实际页码、身份与结尾复核，以及源文件和文本哈希；不允许摘要或节选变成完成正文。该入口不伪造 search-import 结果或 query-complete。

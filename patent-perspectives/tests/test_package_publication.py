@@ -20,6 +20,8 @@ class PublicationPackageTests(unittest.TestCase):
                 self.assertIsNone(archive.testzip())
                 self.assertEqual(archive.read("patent-perspectives/LICENSE"), (ROOT / "LICENSE").read_bytes())
                 self.assertIn("patent-perspectives/README.md", archive.namelist())
+                for resource in ('DESIGN.md','scripts/materials.py','scripts/render_reader.py','assets/reader/index.html','assets/reader/report.js','assets/reader/report.css','assets/reader/example.json'):
+                    self.assertIn('patent-perspectives/'+resource,archive.namelist())
                 self.assertEqual(result["files"], len(archive.namelist()))
 
     def test_database_and_cache_are_not_distributed(self):

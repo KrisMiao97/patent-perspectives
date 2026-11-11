@@ -10,6 +10,8 @@ def check(root):
     for rel in ("SKILL.md","ORIGINALITY.md","agents/openai.yaml","scripts/patent_perspectives.py","references/acquisition.md","references/data-contract.md","references/analysis-roles.md","assets/panorama/index.html","assets/panorama/style.css","assets/panorama/app.js","assets/panorama/timeline-zoom.css","assets/panorama/timeline-zoom.js","assets/panorama/timeline-reading.css","assets/panorama/timeline-reading.js","references/compact-timelines.md","references/claim-comparison.md","references/data-reuse.md","references/incremental-analysis.md","scripts/claim_comparison.py","scripts/export_reuse.py","scripts/compare_snapshots.py","assets/panorama/ip-comparison.js","assets/panorama/ip-comparison.css","scripts/industry_research.py","scripts/industry_exports.py","references/company-research-tasks.md","references/route-assessment.md","references/evidence-matrix.md","references/industry-data-contract.md","assets/panorama/industry-research.js","assets/panorama/industry-research.css"):
         if not (root/rel).is_file():errors.append("Missing "+rel)
     skill=root/"SKILL.md"
+    for rel in ("DESIGN.md","references/material-research.md","references/reader-template.md","scripts/materials.py","scripts/render_reader.py","assets/reader/index.html","assets/reader/report.css","assets/reader/report.js","assets/reader/example.json"):
+        if not (root/rel).is_file():errors.append("Missing "+rel)
     for rel in ("scripts/research_workflow.py","scripts/research_quality.py","scripts/research_delivery.py","references/research-workflow.md","references/whole-patent-research.md","assets/panorama/research.js","assets/panorama/research.css"):
         if not (root/rel).is_file():errors.append("Missing "+rel)
     if skill.is_file():

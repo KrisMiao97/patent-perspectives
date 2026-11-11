@@ -1,6 +1,6 @@
 # 专利棱镜｜可安装技能
 
-当前版本：`2026.11.02-unified1-pub1`。研究流程基线为2026.11.02统一版，公开修订增加许可、说明与发行打包。
+当前版本：`2026.11.10-reader2`。在统一研究引擎上新增按材料研究与读者输出规范。
 
 将本文件夹整体放入宿主的技能目录，确保[SKILL.md](SKILL.md)位于文件夹第一层。向支持技能的AI助手提出需求，例如：
 
@@ -20,3 +20,7 @@ python scripts/patent_perspectives.py --help
 资料与数据库放在本技能目录之外。技术申请采用[整篇阅读与独立复核](references/whole-patent-research.md)，并按[问题与比较契约](references/research-workflow.md)形成研究发现。
 
 完整介绍、标准库合成演示、截图、更新记录及发行下载见[GitHub仓库](https://github.com/KrisMiao97/patent-perspectives)。本技能按[MIT许可](LICENSE)分发；[原创及第三方资料边界](ORIGINALITY.md)另行说明，不改变来源资料自身的权利。
+
+[在 WorkBuddy 查看专利棱镜](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl)。
+
+无接口时可用[按材料研究](references/material-research.md)；输出先读[设计规范](DESIGN.md)与[模板契约](references/reader-template.md)。

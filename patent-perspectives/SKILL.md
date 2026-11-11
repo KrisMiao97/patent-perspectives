@@ -1,11 +1,11 @@
 ---
 name: patent-perspectives
-description: Research a selected company through management, R&D and IP views, supporting project exploration, competition, company profiling, route selection and conditional forecasting, with cross-industry transfer and readiness analysis. Also adapt to design-patent invalidation decisions when explicitly requested.
+description: Research a selected company through management, R&D and IP views, supporting project exploration, competition, company profiling, route selection and conditional forecasting, with cross-industry transfer and readiness analysis. Accept uploaded documents or accessible links when search APIs are unavailable. Produce reader-oriented interactive reports. Also adapt to design-patent invalidation decisions when explicitly requested.
 ---
 
 # 专利三视角
 
-技能版本：`2026.11.02-unified1-pub1`（可用运行入口 `--version` 核对；研究流程基线为统一版，pub1补充公开许可与发行打包）。
+技能版本：`2026.11.10-reader2`（可用运行入口 `--version` 核对；补充材料研究入口、读者设计规范及可运行阅读模板）。
 
 把同一套公开专利证据转化为管理层、研发和知识产权三种解读，交付离线互动报告、一份可编辑的《分析记录与后续补充说明》，以及可复用的专利、市场和分析数据包。原始事实、计算结果与分析推断分别保存；角色切换不得改变底层事实。
 
@@ -41,6 +41,8 @@ description: Research a selected company through management, R&D and IP views, s
 
 ## 获取并核验能力
 
+先区分“检索公司专利”和“按现有材料研究”。搜索不可用或用户已选择上传材料时，按[材料研究](references/material-research.md)冻结材料范围；搜索可用而正文缺失时接受同件 PDF 或可访问公报补证。按缺少的能力建议智慧芽接口，不把接入接口作为材料内研究的前提。摘要、节选和登录受限链接不能算全文。材料范围完成不冒充公司全量；全量检索仍执行原有总数与分页门禁。
+
 获取数据前读 [acquisition.md](references/acquisition.md)。按当前宿主可用工具发现能力并记录绑定，不预设某个服务器或工具名。Patsnap 的搜索、全文、同族、状态和图片能力可以来自不同已授权连接。
 
 先以分层样本验证完整权利要求、同件说明书按需补读与回退、分页及文献身份，再启动全量。没有完整说明书或完整权利要求获取路径时，继续完成不依赖它的技能和检索准备，保存缺口，不能宣称全量技术分析已经完成。使用现有授权额度，不自动购买。
@@ -70,7 +72,13 @@ description: Research a selected company through management, R&D and IP views, s
 
 管理层看规模、类型与地域结构、产品线和技术变化；研发看结构、步骤、条件与路线差异；知识产权看权利要求、关联申请、版本与法律状态。管理层事实区域标题固定为“关键事实”，正文讲已观察事实，不写指挥读者做事的套话。结论与条件必须来自证据，不把相似度直接转成侵权或有效性结论。
 
-权利要求要素对照及公开/授权版本变化只在专利工程师（知识产权，`ip`）界面展示，管理层和研发界面不出现对应板块、导航或选择控件。按[要素对照与版本证据](references/claim-comparison.md)准备真实可比案件，每格定位同件同版本原文；资料不足时区分未披露与未取得，不生成缺证的版本变化结论。普通研发技术路线比较仍按原文解释结构与过程。
+权利要求要素对照是共享证据工具，在专利工程师视角前置，管理层和研发可按需进入。按[要素对照与版本证据](references/claim-comparison.md)逐格定位同件同版本原文；未披露和未取得分别表达。入口、首次渲染、原文查看和直达访问采用一致规则，不保留空白工具章节。
+
+## 读者设计与输出模板
+
+生成或改写报告前读取 [DESIGN.md](DESIGN.md)、[阅读模板契约](references/reader-template.md) 与[读者验收](references/reader-acceptance.md)。先写三个角色各自最需要的答案，按“判断—解释—比较—证据”组织，不以数据容器或指标堆砌代替研究。每章包括目录、图谱、时间线均给有依据的结论；概览在同一报告中，不另起摘要页面。术语、统计单位、分母与时间含义全程一致；技术说明保留位置、触发条件和动作，界面不显示“回退”等实现词。
+
+优先使用 assets/reader 的可运行阅读模板承载角色概览、章节结论、年度比较与目录，按章阅读、筛选工作台、主题索引共用数据。脚本 render_reader.py 的真实报告入口要求已通过原研究门禁的数据库；--demo 仅允许明确合成数据。既有 panorama 引擎中的复杂时间图、同族图谱、完整要素矩阵继续保留，需要时按模板契约集成，不以模板截图冒充全部功能已经迁移。
 
 ## 运行与正式交付
 
@@ -92,8 +100,8 @@ description: Research a selected company through management, R&D and IP views, s
 
 技术时间图默认采用[紧凑阅读](references/compact-timelines.md)，按有展示节点的年份排列可读卡片，减少空白；保留按时间比例、缩放和全屏。两种视图沿用同一节点、日期口径、筛选、分页与原文入口。
 
-产品年度表采用定量色阶。每个技术大类和实现方向有技术梳理和时间入口；重要技术总图、产品事件图、逐线技术图、可全屏的分层思维导图以及原文详情共用筛选。每个图标明筛选适用范围，固定文字结论保留原始范围。
+产品年度变化默认使用柱状图或折线图，精确数字表按需展开，不默认铺开满屏零值矩阵。每个技术大类和实现方向有技术梳理和时间入口；重要技术总图、产品事件图、逐线技术图、可全屏的分层思维导图以及原文详情共用筛选。每个图标明筛选适用范围，固定文字结论保留原始范围。
 
-正文、标题、弹窗、图注及随包说明不得包含“用户提供”“参考PDF”“Skill未修改”等内部开发记录；主报告保留研究截止日、实际状态观察日、统计单位、实际分析分母和影响具体结论的证据限制。详细处理覆盖、跳过原因及恢复步骤只进入独立说明。检查真实浏览器下的离线打开、目录移动、筛选、角色切换、图谱和原文跳转；要素对照另查角色隔离与直达入口。权限受限时如实记录未完成的显示验证，静态检查不能冒称浏览器测试通过。
+正文、标题、弹窗、图注及随包说明不得包含“用户提供”“参考PDF”“Skill未修改”等内部开发记录；主报告保留研究截止日、实际状态观察日、统计单位、实际分析分母和影响具体结论的证据限制。详细处理覆盖、跳过原因及恢复步骤只进入独立说明。检查真实浏览器下的离线打开、目录移动、筛选、角色切换、图谱和原文跳转；要素对照另查三个角色的首次打开、直达入口与原文查看。权限受限时如实记录未完成的显示验证，静态检查不能冒称浏览器测试通过。
 
 通常交付互动报告与总览图、唯一可编辑的《分析记录与后续补充说明》、数据复用包，以及将三者并列链接的阅读入口。按[数据复用交付](references/data-reuse.md)输出实际收集的专利著录、文献与原文、市场/产品资料、分析及证据；保留稳定ID、来源与观察日期、字段说明、快照和文件清单，采用SQLite一致性副本及必要JSONL/CSV和相对资产路径。原母库保持可恢复；脱敏副本的校验范围和续跑限制明确记录，不把网页当作唯一数据交付。原始工具日志与开发验证记录留在工作目录；可复核来源材料与日志分别处理。技能包与企业运行数据分开，凭证和临时签名不进入交付。需要分发技能或参赛时再附技能ZIP和作品说明，原创边界见 [ORIGINALITY.md](ORIGINALITY.md)。

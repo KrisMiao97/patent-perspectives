@@ -6,9 +6,9 @@
 
 **围绕具体研究问题，把专利原文、方案比较和研究发现连起来，为管理层、研发和知识产权提供可追溯的解释。**
 
-技能标识：`patent-perspectives` · 当前版本：`2026.11.02-unified1-pub1` · 许可：[MIT](LICENSE)
+技能标识：`patent-perspectives` · 当前版本：`2026.11.10-reader2` · 许可：[MIT](LICENSE)
 
-[下载发行包](https://github.com/KrisMiao97/patent-perspectives/releases) · [运行合成演示](examples/synthetic-optics/README.md) · [更新记录](CHANGELOG.md) · [验证范围](docs/validation.md)
+[WorkBuddy 安装入口](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl) · [下载发行包](https://github.com/KrisMiao97/patent-perspectives/releases) · [运行合成演示](examples/synthetic-optics/README.md) · [更新记录](CHANGELOG.md) · [验证范围](docs/validation.md)
 
 ![明确标识的合成光学机构演示：研究问题、技术比较与关键发现](docs/images/synthetic-desktop.png)
 
@@ -26,9 +26,15 @@
 | 研发 | 部件装在哪里、如何连接、何时动作？不同方案的结构、过程和适用条件有哪些差异？ |
 | 知识产权 | 具体权利要求怎样限定？相关申请和版本有什么关系，法律状态依据是什么？ |
 
-权利要求要素对照与公开、授权版本变化工具仅在知识产权视角展示。普通技术结构和路线比较供三类读者阅读。
+知识产权视角优先展示权利要求要素对照与公开、授权版本变化。管理层和研发也可以打开对照，查看同件、同版本的原文。
 
-## 统一版的研究流程
+## 有检索接口，也可以从现有材料开始
+
+有授权的专利检索工具时，可先核对主体与检索结果。全文缺失时，可用上传的 PDF 或可访问公报补同一申请、同一版本的正文。
+
+没有检索接口时，可上传 Excel、CSV、专利号清单、PDF，或提供可访问链接。先确认材料范围，再按申请去重和核查原文。摘要或节选只作线索。需要查齐公司全部公开申请，或批量核对法律状态、同族时，可按缺少的能力补充连接器。[按材料研究说明](patent-perspectives/references/material-research.md)
+
+## 研究流程
 
 1. **先确定研究范围与问题。** 核查企业及公开资料概况，复用已明确的条件，集中确认剩余范围。
 2. **一件专利一个完整任务。** 优先完整权利要求，理解不足时补读同件说明书；超长文献连续阅读，不把独立片段摘要拼成全篇理解。
@@ -60,13 +66,21 @@ python examples/synthetic-optics/generate_demo.py --output work/synthetic-demo
 
 </details>
 
+新版阅读模板把结论和证据放在同一份报告中，支持管理层、研发、知识产权切换，以及按章阅读、筛选工作台和主题索引。运行以下命令生成带合成数据的单文件预览：
+
+```bash
+python patent-perspectives/scripts/render_reader.py --input patent-perspectives/assets/reader/example.json --demo --output work/reader-preview.html
+```
+
+复杂图谱和完整的要素矩阵仍由原报告组件提供。按项目需要将这些组件接入阅读模板。[设计规范](patent-perspectives/DESIGN.md) · [模板契约](patent-perspectives/references/reader-template.md)
+
 ## 真实研究需要什么
 
 | 条件 | 用途 |
 | --- | --- |
 | 能加载技能的 AI 助手 | 负责调用数据工具、阅读原文、解释技术及安排独立复核 |
 | Python 3.10 或更高版本 | 核心引擎使用标准库，负责本地存储、校验和生成报告 |
-| 已授权的专利数据工具 | 获取检索结果、完整权利要求或说明书，以及任务需要的同族、状态和图片 |
+| 已授权的专利数据工具或可核验的材料 | 获取检索结果、正文及所需状态、同族证据，或研究已确认的材料范围 |
 | 可追溯的企业及产品资料 | 核验主体、产品线、时间节点及需要比较的产品事实 |
 | 浏览器 | 阅读与验证离线互动报告；未打包的外部链接仍需联网 |
 
@@ -75,6 +89,8 @@ python examples/synthetic-optics/generate_demo.py --output work/synthetic-demo
 Node.js 和浏览器自动化工具用于开发验证，不是运行核心引擎或本合成演示的必要条件。
 
 ## 安装与使用
+
+WorkBuddy 用户可从[专利棱镜分享页](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl)查看技能。
 
 下载 [Release](https://github.com/KrisMiao97/patent-perspectives/releases) 中的技能 ZIP，解压后将直接包含 `SKILL.md` 的 `patent-perspectives` 文件夹放入宿主的技能目录。Codex 当前支持项目内 `.agents/skills/patent-perspectives/`，以及用户级 `~/.agents/skills/patent-perspectives/`；其他宿主按其技能安装方式处理。更新未出现时重新加载宿主。[官方技能说明](https://learn.chatgpt.com/docs/build-skills)。
 
