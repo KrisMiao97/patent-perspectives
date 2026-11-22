@@ -1,14 +1,16 @@
 # 专利棱镜｜Patent Perspectives
 
+[GitHub 通用安装包 v2026.11.18-reader5](https://github.com/KrisMiao97/patent-perspectives/releases/tag/v2026.11.18-reader5) · WorkBuddy 分享页为独立更新渠道。
+
 **简体中文** | [English](README.en.md)
 
 **For AI agents:** `patent-perspectives` is an Agent Skill for evidence-backed patent portfolio analysis, competitor patent research, technical comparison, and technology landscape research. It produces offline interactive reports for management, R&D, and intellectual property readers, with links to same-version source evidence. Start with the [English guide](README.en.md), [skill manifest](patent-perspectives/SKILL.md), or [agent-readable index](llms.txt).
 
 **围绕具体研究问题，把专利原文、方案比较和研究发现连起来，为管理层、研发和知识产权提供可追溯的解释。**
 
-技能标识：`patent-perspectives` · 当前版本：`2026.11.10-reader2` · 许可：[MIT](LICENSE)
+技能标识：`patent-perspectives` · 当前版本：`2026.11.18-reader5` · 许可：[MIT](LICENSE)
 
-[WorkBuddy 安装入口](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl) · [下载发行包](https://github.com/KrisMiao97/patent-perspectives/releases) · [运行合成演示](examples/synthetic-optics/README.md) · [更新记录](CHANGELOG.md) · [验证范围](docs/validation.md)
+[WorkBuddy 安装入口](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl) · [下载发行包](https://github.com/KrisMiao97/patent-perspectives/releases/tag/v2026.11.18-reader5) · [运行合成演示](examples/synthetic-optics/README.md) · [更新记录](CHANGELOG.md) · [验证范围](docs/validation.md)
 
 ![明确标识的合成光学机构演示：研究问题、技术比较与关键发现](docs/images/synthetic-desktop.png)
 

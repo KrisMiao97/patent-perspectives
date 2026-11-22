@@ -168,6 +168,10 @@ evidence 每条含 id、quote、locator，并可含 document_id、start/end。�
 
 insights-import 的每条记录包含 id、role、title、body、evidence_ids、patent_ids、scope、limitations、kind。role 使用 management、rd 或 ip；kind 使用 observation、hypothesis 或 research_action。scope 描述原始适用范围，至少明确本运行及相关申请；已有全组合结论在筛选后仍保留该范围，不自动视为子集结论。承接已完成专题的正文结论另填 research_question_ids，并按[报告组织](reporting.md)携带专题的完整证据关联；正式 render 检查是否漏题或缺证。
 
+同一条事实在多个角色出现时，用 `shared_fact: {"id": "stable-fact-id", "statement": "逐字共用的、有证据边界的结论"}`。同一 id 的原句、scope、kind、limitations、申请与证据集合必须一致。各角色的标题和解读可突出不同重点。发布前逐句核对措辞，分别查清文本披露、已获保护、实际采用和优势已证实所需的证据。程序会拦截部分容易误读的措辞，语义仍需逐句核对。卡片和依据弹窗从同一记录显示结论及其指定版本。独立研究结论可保留各自的范围和限制。
+
+法律状态表按独立申请统计。「状态已核」须有该申请下已留存、可合并且无冲突的单件法律状态观察。只有检索著录、未取得、状态冲突或无法识别时，汇总计为未知。一次同申请的 B 文献状态观察可计入申请覆盖，A 文献原文仍按 A 版显示；不将 B 文献的状态填给 A 文献。有效、失效等各列采用已核观察，版次、观察来源与观察日期仍可回查。
+
 relations-import 的每条记录包含 id、source、target、type、kind、evidence_ids、label。kind 为 fact 或 inference。事实边需 evidence_ids，或 source_url 加 source_locator；推断边需 evidence_ids 和非空 basis，说明归纳依据。技术相似、问题—手段归纳和模块聚合属于分析边。引用方向按原始数据保存，不能反转被引与引用。
 
 导入角色结论时，脚本绑定当前申请集合、主体边界、截止日和逐件分析的 population_hash。集合或分析变化后，旧结论视为过期，必须基于更新后的证据重审并重新导入三个角色的结论，不能手工沿用旧指纹。

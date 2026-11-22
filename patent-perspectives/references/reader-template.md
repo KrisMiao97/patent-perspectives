@@ -1,5 +1,10 @@
 # 阅读模板的使用与数据契约
 
+项目评审与储备按[项目报告写法与数据接入](project-reports.md)填写 `reader_contract.project_report`，两个报告入口共用同一套章节、来源和校验。
+
+
+本轮入口与交付统一遵守 [市场确认、角色阅读和完整性](reader-research-contract.md)。新兴技术、发展阶段、技术空白和跨领域匹配按 [技术变化与机会研判](technology-opportunities.md) 按需启用。市场搜索未经使用者确认时不开展，保留相关判断未知；旧版既有研究记录继续复用。
+
 输出方向以 [DESIGN.md](../DESIGN.md) 为准；此处规定可运行资源怎样接入。模板是事实呈现层，不替代检索、阅读和研究质量门禁。
 
 ## 运行
@@ -19,6 +24,8 @@ python scripts/render_reader.py --input /任务数据/reader.json --db /任务�
 - scope：mode=search/materials、label、as_of、status_observed_at、disclosure_date、partial_years。材料范围写明清单边界。
 - records：每项 id（独立申请ID）、title、publication、type、filing_date、product、status、read_complete、evidence_ids。导入前字符串化ID；未知日期可用null；外观设计以design单列，无技术正文时evidence_ids可为空，页面明确提示没有可展示的原文。
 - sources：id使用数据库 evidence.id，title、publication、version、locator、quote、text及可选url。quote必须匹配text；真实运行从数据库重新绑定版本、位置和状态，不能伪造原文。
+
+真实报告的角色依据卡可用 `insight_id` 引用当前已验收的同角色结论；新报告引用共用事实时使用这一字段。渲染重新绑定标题、正文、证据编号、原文版本、范围与限制，并在卡片和依据弹窗显示同一条共用结论。章节也可用 `insight_id` 引用验收结论。目录的状态覆盖按当前筛选显示，只计有已留存观察的已核状态。
 - roles：management/rd/ip 各有 title、answer、scope_label、reasons（每项title、text、evidence_ids）。答案由研究者按证据撰写；不能用标题问句加数值代替答案。
 - chapters：id、title、kind（trend/directory/comparison或普通文字）、conclusion、scope_label、body、evidence_ids。每章必须有结论；可依据研究任务增加章节，不能用缺证的空图填数。
 - orders：三个角色各自的章节顺序，必须包含同一套共享章节ID。角色切换保留当前章；概览按钮明确回到该角色首章。

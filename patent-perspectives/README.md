@@ -1,6 +1,8 @@
 # 专利棱镜｜可安装技能
 
-当前版本：`2026.11.10-reader2`。在统一研究引擎上新增按材料研究与读者输出规范。
+企业项目的三类报告使用[已确认的角色模板](references/project-reports.md)，涵盖近期评审、中长期储备和证据填写。可直接打开[离线网页范本](references/report-templates/打开网页.html)。
+
+当前版本为 `2026.11.18-reader5`。阅读版和全景版都可以用同一份研究底稿生成项目评审与储备章节。
 
 将本文件夹整体放入宿主的技能目录，确保[SKILL.md](SKILL.md)位于文件夹第一层。向支持技能的AI助手提出需求，例如：
 
@@ -20,7 +22,5 @@ python scripts/patent_perspectives.py --help
 资料与数据库放在本技能目录之外。技术申请采用[整篇阅读与独立复核](references/whole-patent-research.md)，并按[问题与比较契约](references/research-workflow.md)形成研究发现。
 
 完整介绍、标准库合成演示、截图、更新记录及发行下载见[GitHub仓库](https://github.com/KrisMiao97/patent-perspectives)。本技能按[MIT许可](LICENSE)分发；[原创及第三方资料边界](ORIGINALITY.md)另行说明，不改变来源资料自身的权利。
-
-[在 WorkBuddy 查看专利棱镜](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl)。
 
 无接口时可用[按材料研究](references/material-research.md)；输出先读[设计规范](DESIGN.md)与[模板契约](references/reader-template.md)。

@@ -1,12 +1,14 @@
 # Patent Perspectives — Evidence-Backed Patent Research Agent Skill
 
+[GitHub skill package v2026.11.18-reader5](https://github.com/KrisMiao97/patent-perspectives/releases/tag/v2026.11.18-reader5) · The WorkBuddy share uses a separate release channel.
+
 [简体中文](README.md) | **English**
 
 **Patent Perspectives (专利棱镜, also called Patent Prism) is an Agent Skill for company patent portfolio analysis, competitor patent research, product-line research, technical comparisons, and evidence-backed technology landscape reports.**
 
 It turns a shared set of patent evidence into management, R&D, and intellectual property perspectives. The skill combines whole-patent reading tasks, independent review records, structured comparisons, and offline interactive reports with traceable original-text citations.
 
-[WorkBuddy listing](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl) · [Skill manifest](patent-perspectives/SKILL.md) · [Agent-readable index](llms.txt) · [Download releases](https://github.com/KrisMiao97/patent-perspectives/releases) · [Synthetic demo](examples/synthetic-optics/README.md) · [MIT license](LICENSE)
+[WorkBuddy listing](https://www.workbuddy.cn/share/asset?shareCode=H3NgbxWTL4DGq15pDi4rLD&sig=HMjbVzNbQufg2Bnl) · [Skill manifest](patent-perspectives/SKILL.md) · [Agent-readable index](llms.txt) · [Download releases](https://github.com/KrisMiao97/patent-perspectives/releases/tag/v2026.11.18-reader5) · [Synthetic demo](examples/synthetic-optics/README.md) · [MIT license](LICENSE)
 
 ## Quick identification for agents and skill catalogs
 
@@ -16,7 +18,7 @@ It turns a shared set of patent evidence into management, R&D, and intellectual 
 | Repository | `KrisMiao97/patent-perspectives` |
 | Installable skill directory | `patent-perspectives/` |
 | Entry point | [`patent-perspectives/SKILL.md`](patent-perspectives/SKILL.md) |
-| Current code release | `2026.11.10-reader2` |
+| Current code release | `2026.11.18-reader5` |
 | Skill format | `SKILL.md` with `name` and `description` front matter, instructions, references, scripts, and assets |
 | Analysis runtime | An AI host with file, script, and authorized data-tool access; Python 3.10+ for the core engine |
 | Data connection | Authorized patent data tools, uploaded documents, or accessible links |

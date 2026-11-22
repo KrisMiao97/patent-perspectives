@@ -1,6 +1,6 @@
 interface:
   display_name: "专利三视角"
-  short_description: "围绕目标公司开展五类研究，以问题、比较和独立复核形成可追溯的三视角报告"
-  default_prompt: "使用 $patent-perspectives 围绕我选定的公司和问题开展立项、竞争、画像、选型或预测研究，按整篇阅读与独立复核形成技术比较、路线关系和关键发现，研判跨行业借鉴及成熟度，交付可追溯的三视角报告。"
+  short_description: "企业专利三视角研究、近期预研评审与中长期储备报告"
+  default_prompt: "使用 $patent-perspectives 围绕我选定的公司和问题开展立项、竞争、画像、选型或预测研究，按整篇阅读与独立复核形成技术比较、路线关系和关键发现，研判跨行业借鉴及成熟度，交付可追溯的三视角报告。涉及具体项目评审或中长期储备时，按管理、研发和专利读者的确认版模板组织结论、证据与复核条件。"
 policy:
   allow_implicit_invocation: true

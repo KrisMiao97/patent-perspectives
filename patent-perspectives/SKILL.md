@@ -1,13 +1,17 @@
 ---
 name: patent-perspectives
-description: Research a selected company through management, R&D and IP views, supporting project exploration, competition, company profiling, route selection and conditional forecasting, with cross-industry transfer and readiness analysis. Accept uploaded documents or accessible links when search APIs are unavailable. Produce reader-oriented interactive reports. Also adapt to design-patent invalidation decisions when explicitly requested.
+description: Research a selected company through management, R&D and IP views, supporting project exploration, competition, company profiling, route selection and conditional forecasting, with cross-industry transfer and readiness analysis. Accept uploaded documents or accessible links when search APIs are unavailable. Produce reader-oriented interactive reports for executives, R&D directors and IP directors. Use the approved role templates for near-term project reviews and longer-term technology or IP reserves. Also adapt to design-patent invalidation decisions when explicitly requested.
 ---
 
 # 专利三视角
 
-技能版本：`2026.11.10-reader2`（可用运行入口 `--version` 核对；补充材料研究入口、读者设计规范及可运行阅读模板）。
+技能版本：`2026.11.18-reader5`（可用运行入口 `--version` 核对）。
 
 把同一套公开专利证据转化为管理层、研发和知识产权三种解读，交付离线互动报告、一份可编辑的《分析记录与后续补充说明》，以及可复用的专利、市场和分析数据包。原始事实、计算结果与分析推断分别保存；角色切换不得改变底层事实。
+
+同一结论跨角色复用时，按[数据契约](references/data-contract.md)登记同一 `shared_fact`，原句、判定类别、范围、原文和条件共用。逐句对照角色正文和依据弹窗，确保公开申请只用于说明已披露或写入权项的内容，授权文本与观察到的法律状态分别核实，产品宣传、实物采用、试验效果与专利披露各看实际证据。法律状态表写明当前分母、已核件数和未知件数。
+
+从其他专利 Skill 导入证据或将研究证据交出前，执行 [证据交接](references/evidence-handoff.md)。按接受记录与当前记录的差异定位原件和受影响的三视角结论。复用包有路径或字节转换时保留实际转换记录，原件和派生件分列指纹。给文字校验的原文片段保留连续位置和成立条件。
 
 先识别研究对象。公司或产品线专利研究沿用下述概览与范围确认；用户已授权的外观设计决定书研究，直接采用既定案件、争点和成果范围，按[案件研究适配](references/whole-patent-research.md#已授权的外观设计决定书研究)执行，不要求补一个目标公司，不套用技术权利要求数据流程。已有任务直接复用已明确的范围。
 
@@ -15,15 +19,23 @@ description: Research a selected company through management, R&D and IP views, s
 
 技术申请需要把研究问题、术语、逐项比较、路线关系与关键发现连成可追溯成果时，读取[问题驱动研究工作流](references/research-workflow.md)。沿用同一组研究问题ID与独立复核；这项增强补充研究底稿和阅读入口，不替代单件理解、专题审阅或既有公司研究模块。
 
-需要围绕所选公司做立项探索、竞争格局、公司画像、路线选择或技术预测时，读取[公司研究任务](references/company-research-tasks.md)。按实际问题选择任务；明确要求完整五类研究时覆盖五类。任务共用既有主体、原文和研究问题，不另造相互矛盾的事实。对冻结为主要研究对象的每条路线，按[路线迁移与研判](references/route-assessment.md)分别完成跨行业借鉴、条件预测、成熟度和选型；证据不足也须明确缺口及验证方法。
+需要围绕所选公司做立项探索、竞争格局、公司画像、路线选择或技术预测时，读取[公司研究任务](references/company-research-tasks.md)。按实际问题选择任务；明确要求完整五类研究时覆盖五类。任务共用既有主体、原文和研究问题，不另造相互矛盾的事实。对冻结的主要路线，按[路线迁移与研判](references/route-assessment.md)与本次研究问题选择跨行业借鉴、条件预测、工程成熟度或选型；明确要求完整覆盖时逐项完成，证据不足说明缺口及回查方法。
 
 行业研究采用[证据矩阵与阅读规范](references/evidence-matrix.md)，提供公司×技术方向矩阵和选定案例地域表，沿用浅蓝白色及来源点击追溯。新增方法和实现独立编写，外部组合包只作任务和展示思路参考，不导入其提示词、分类字典、评分公式、模板、代码或案例事实。
 
+## 企业项目评审与技术储备
+
+用户需要对本企业的投入、研发路线或权利处置作出判断时，使用[项目报告写法与数据接入](references/project-reports.md)，读取对应角色的确认版模板及共用底稿。企业决策者先读授权范围和下个投入关口，研发总监先读可比条件及验证任务，专利总监先读具体限定、产品对应和取证行动。近期预研与中长期储备按评审问题选择，储备单列保留理由、成熟度、资源及转入或关闭条件。完整三套报告按约定模块覆盖，单项研究按实际问题选择。
+
+正式项目报告在阅读版或全景版的第 2 版读者契约中填写 `project_report`，先呈现当前模块的决定与边界，再链接实际研究原文、项目图纸及验证材料。[已确认的离线网页范本](references/report-templates/打开网页.html)专供编写时查阅；产品、权项、示意图、预算和试验参数均为教学材料。纯研究仍可交付工作过程、比较结论及未决问题。
+
 ## 先概览，再集中确认
+
+概览和后续补查前执行[研究入口、角色阅读与完整性](references/reader-research-contract.md)。市场层面的是否搜索及问题、对象、地区、时间、来源和深度须由使用者确认；已有清楚的确认直接复用，扩大范围前再确认。未获确认继续专利与已授权技术核查，不以企业概览、产品核实或主动补证为由启动市场研究。
 
 公司或产品线研究首次执行先读 [公司概览与集中确认](references/company-intake.md)。只有该任务确需目标公司且无法识别时才先问名称或消歧问题；不要一开始就抛出完整问卷。
 
-先利用已授权检索和企业公开资料，简要了解主体、专利规模、类型、地域、年度分布、主要产品/技术线索，以及数据可取得程度。明确哪些是检索匹配文献数、哪些已去重为独立申请；这一步是概览，不逐件下载全量技术全文，也不默认启动全量深析。
+先利用已授权检索与技术资料了解主体、专利规模、类型、地域、年度分布、产品技术线索及资料可取得程度；企业资料涉及市场采用、需求、竞争或销量时先确认市场搜索范围。明确检索匹配数与独立申请数；概览不默认逐件下载全量全文或启动全量深析。
 
 把已查到的事实和边界简短展示后，集中询问尚未明确的主体范围、时间口径、全量或子集规模、产品/技术重点及主要读者。给出结合实际规模的建议选项。复用用户已明确的条件和既有运行选择，不重复确认；全部条件已清楚时直接记录并执行。等待必要范围回答时只做不依赖该回答的准备，不把未答复视为同意全量。
 
@@ -76,6 +88,8 @@ description: Research a selected company through management, R&D and IP views, s
 
 ## 读者设计与输出模板
 
+涉及新兴技术、引入/增长/成熟/饱和、技术空白或跨领域匹配时，执行[技术变化与机会研判](references/technology-opportunities.md)，复用已有路线分析。按问题启用；工程成熟度与应用发展阶段分别说明，市场证据不足时不强判阶段。新撰完整报告按[读者契约](references/reader-research-contract.md)提供 `report_contract_version: 2` 与 `reader_contract`；全景版置于 report-context，阅读版置于阅读数据。复用原研究问题ID及有效证据，不用展示层绕过质量门禁。章节 body 可用 heading、text、steps 分层说明，关键限制在正文可见。
+
 生成或改写报告前读取 [DESIGN.md](DESIGN.md)、[阅读模板契约](references/reader-template.md) 与[读者验收](references/reader-acceptance.md)。先写三个角色各自最需要的答案，按“判断—解释—比较—证据”组织，不以数据容器或指标堆砌代替研究。每章包括目录、图谱、时间线均给有依据的结论；概览在同一报告中，不另起摘要页面。术语、统计单位、分母与时间含义全程一致；技术说明保留位置、触发条件和动作，界面不显示“回退”等实现词。
 
 优先使用 assets/reader 的可运行阅读模板承载角色概览、章节结论、年度比较与目录，按章阅读、筛选工作台、主题索引共用数据。脚本 render_reader.py 的真实报告入口要求已通过原研究门禁的数据库；--demo 仅允许明确合成数据。既有 panorama 引擎中的复杂时间图、同族图谱、完整要素矩阵继续保留，需要时按模板契约集成，不以模板截图冒充全部功能已经迁移。
@@ -101,6 +115,10 @@ description: Research a selected company through management, R&D and IP views, s
 技术时间图默认采用[紧凑阅读](references/compact-timelines.md)，按有展示节点的年份排列可读卡片，减少空白；保留按时间比例、缩放和全屏。两种视图沿用同一节点、日期口径、筛选、分页与原文入口。
 
 产品年度变化默认使用柱状图或折线图，精确数字表按需展开，不默认铺开满屏零值矩阵。每个技术大类和实现方向有技术梳理和时间入口；重要技术总图、产品事件图、逐线技术图、可全屏的分层思维导图以及原文详情共用筛选。每个图标明筛选适用范围，固定文字结论保留原始范围。
+
+在生成前确定读者任务与知识起点，先用真实使用情境交代物件、用途和关键动作，再引入术语和编号。核心机构按原文说明位置、动作起因、传递方向、结果及适用时的复位，未知处明确保留。逐件目录采用已核分析的技术对象与所读版本，三种视角都能分别找到文献版本和当前法律状态。
+
+成品先安排只看页面的独立试读，再用原文核对复述。按[读者验收](references/reader-acceptance.md#成品试读与原文核查)分别保存首屏、正文、角色路径和原文校核结果。关键动作读反、重要过程缺失、分支拼接、表章错配或切换角色后推断升级，应修复受影响内容并复测后再报告通过。模型试读与人工读者验证分别记录。
 
 正文、标题、弹窗、图注及随包说明不得包含“用户提供”“参考PDF”“Skill未修改”等内部开发记录；主报告保留研究截止日、实际状态观察日、统计单位、实际分析分母和影响具体结论的证据限制。详细处理覆盖、跳过原因及恢复步骤只进入独立说明。检查真实浏览器下的离线打开、目录移动、筛选、角色切换、图谱和原文跳转；要素对照另查三个角色的首次打开、直达入口与原文查看。权限受限时如实记录未完成的显示验证，静态检查不能冒称浏览器测试通过。
 

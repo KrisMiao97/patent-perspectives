@@ -5,7 +5,7 @@ import argparse, collections, datetime as dt, hashlib, importlib.util, json, re,
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 SCHEMA_VERSION=1
-SKILL_RELEASE="2026.11.10-reader2"
+SKILL_RELEASE="2026.11.18-reader5"
 def materials_module():
     spec=importlib.util.spec_from_file_location("patent_materials",Path(__file__).with_name("materials.py"))
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module
@@ -519,6 +519,14 @@ def legal_status_snapshot(c,items=None):
             "partial":any(not v["observation_ids"] for v in values),"publication_observations":values,
             "temporal_basis":"Acquisition-time observations; not a reconstruction of status at the search cutoff."}
     return observed,aggregate
+
+def observed_legal_status(snapshot):
+    """Summarize same-application observations without borrowing a text version's status."""
+    observations=[item for item in snapshot.get("publication_observations",[]) if item.get("observation_ids")]
+    known={item.get("status") for item in observations}
+    if len(known)!=1 or any(item.get("observation_conflict") for item in observations):return "unknown"
+    value=next(iter(known))
+    return value if value not in (None,"","unknown","未知","未确认") else "unknown"
 
 def application_date_conflicts(c,appid=None):
     """Retain date disagreements from both search versions and bibliography sources."""
@@ -1254,7 +1262,52 @@ def active_insights(c):
 def insight_selection_scope(c):
     selection=run_info(c)["scope"].get("selection")
     return {k:selection[k] for k in ("kind","manifest_id","manifest_sha256","count","date_field","date_order","tie_break")} if selection else None
+
+def check_role_copy(item):
+    """Catch unqualified high-risk wording; semantic review remains necessary."""
+    shared=item.get("shared_fact")
+    if shared is not None:
+        require(isinstance(shared,dict) and all(isinstance(shared.get(k),str) and shared[k].strip() for k in ("id","statement")),
+            "A shared role fact needs an id and a reviewed statement")
+        require(isinstance(item.get("scope"),str) and item["scope"].strip(),"A shared role fact needs a nonblank scope")
+        limits=item.get("limitations")
+        require(isinstance(limits,list) and limits and all(isinstance(value,str) and value.strip() for value in limits),
+            "A shared role fact needs nonblank judgment limitations")
+    values=[item.get("title",""),item.get("body","")]
+    if shared:values.append(shared["statement"])
+    for value in values:
+        require(isinstance(value,str),"Role conclusion title and body must be strings")
+        for clause in re.split(r"[。．；;，,!?！？\n]",value):
+            if re.search(r"(?:分别|共同)保护|受专利有效保护|(?:当前|仍然|现均)受(?:法律|专利)保护|(?:已经|均已|确已)(?:实施|采用)|(?:产品|量产机型)实际采用|(?:已经|已然)(?:证明|确立)(?:其)?(?:市场领先|竞争优势|性能优势)",clause):
+                require(re.search(r"(?:不能|不等于|未|尚无|是否|有待|待核|假设|可能|如果|若)",clause),
+                    "Role conclusion overstates document evidence; state the text disclosure or provide a separately reviewed basis: "+str(item.get("id","reader")))
+
+def shared_role_facts(items):
+    facts={}
+    for item in items:
+        check_role_copy(item)
+        shared=item.get("shared_fact")
+        if shared is None:continue
+        fact={"statement":shared["statement"],"scope":item["scope"],"kind":item["kind"],
+              "limitations":item["limitations"],"patent_ids":sorted(set(item["patent_ids"])),
+              "evidence_ids":sorted(set(item["evidence_ids"]))}
+        require(facts.setdefault(shared["id"],fact)==fact,
+            "The same shared role fact must use one statement, scope, limitations and evidence set: "+shared["id"])
+    return facts
+
+def role_boundary(c,item):
+    references=[]
+    for evidence_id in set(item["evidence_ids"]):
+        row=c.execute("""SELECT d.publication_id,d.document_type,d.data
+            FROM evidence e JOIN documents d ON e.document_id=d.id WHERE e.id=?""",(evidence_id,)).fetchone()
+        if row:
+            references.append((row["publication_id"],json.loads(row["data"])["version"],row["document_type"]))
+    return {**{name:item[name] for name in ("scope","kind")},"limitations":item.get("limitations",[]),
+            "application_count":len(set(item.get("patent_ids",[]))),
+            "versions":[dict(zip(("publication","version","document_type"),ref)) for ref in sorted(set(references))]}
+
 def import_insights(c,payload):
+    pending={}
     for p in as_list(payload):
         require(p.get("id") and p.get("role") in ROLES and p.get("title") and p.get("body"),"Insight id/role/title/body required")
         require(p.get("scope") and isinstance(p.get("limitations",[]),list),"Insight scope and limitations required")
@@ -1271,7 +1324,9 @@ def import_insights(c,payload):
             ids=set(metric.get("application_ids",[]))
             require(ids<=apps and metric.get("value")==len(ids),"Role metric conflicts with canonical application count")
         item=dict(p);item["population_hash"]=population_hash(c)
-        c.execute("INSERT OR REPLACE INTO insights VALUES(?,?)",(p["id"],dump(sanitized(item))))
+        pending[p["id"]]=sanitized(item)
+    shared_role_facts([i for i in active_insights(c) if i["id"] not in pending]+list(pending.values()))
+    c.executemany("INSERT OR REPLACE INTO insights VALUES(?,?)",[(key,dump(item)) for key,item in pending.items()])
     event(c,"insights-import",{"count":len(as_list(payload))});return {"insights_imported":len(as_list(payload))}
 def import_relations(c,payload):
     for p in as_list(payload):
@@ -1505,6 +1560,8 @@ def validate_run(c):
     if cov["technical_applications"]:
         for role in ROLES: check(any(i["role"]==role for i in insights),"missing_role_insights",role)
     current_population=population_hash(c)
+    try:shared_role_facts(insights)
+    except ValidationError as exc:check(False,"role_evidence_boundary",str(exc))
     for insight in insights:
         check(insight.get("population_hash")==current_population,"stale_role_insight",insight["id"])
         check(bool(insight.get("evidence_ids")),"insight_without_evidence",insight["id"])
@@ -1573,6 +1630,7 @@ def build_payload(c,report,local_image_paths=None,document_image_records=None,or
         ana=analyses.get(a["id"]);p=dict(a)
         p["legal_status_details"]=legal.get(a["id"],{"status":"unknown","publication_observations":[]})
         p["legal_status"]=p["legal_status_details"]["status"]
+        p["verified_legal_status"]=observed_legal_status(p["legal_status_details"])
         if date_conflicts[a["id"]]:
             p["date_conflicts"]=date_conflicts[a["id"]];p["date_source_values"]={}
             for field in {x["field"] for x in date_conflicts[a["id"]]}:
@@ -1663,6 +1721,7 @@ def build_payload(c,report,local_image_paths=None,document_image_records=None,or
            "auxiliary_sources":[auxiliary.public_record(i) for i in all_aux if i["application_id"]==mid],
            "bibliographies":[json.loads(r[0]) for r in c.execute("SELECT data FROM bibliographies WHERE application_id=? ORDER BY id",(mid,))]})
         source["legal_status"]=source["legal_status_details"]["status"];member_payload.append(source)
+        source["verified_legal_status"]=observed_legal_status(source["legal_status_details"])
         details[cid].setdefault("registration_members",[]).append(source)
         for patent in patents:
             if patent["id"]==cid:
@@ -1677,11 +1736,17 @@ def build_payload(c,report,local_image_paths=None,document_image_records=None,or
        "by_filing_year":dict(sorted(collections.Counter(a["filing_date"][:4] if a.get("filing_date") else "unknown" for a in patents).items())),
        "historical_original_query_ids":[r["id"] for r in c.execute("SELECT id,request FROM queries WHERE kind='original'") if not json.loads(r["request"]).get("verification_only",False)],
        "current_owner_query_ids":[r["id"] for r in c.execute("SELECT id,request FROM queries WHERE kind='current'") if not json.loads(r["request"]).get("verification_only",False)]}
+    role_insights=[i for i in active_insights(c) if set(i.get("patent_ids",[]))<=appids]
+    shared_facts=shared_role_facts(role_insights)
+    for insight in role_insights:
+        shared=insight.pop("shared_fact",None)
+        if shared:insight["shared_fact_id"]=shared["id"]
+        insight["boundary"]=role_boundary(c,insight)
     payload={"schema_version":SCHEMA_VERSION,"run":run,"stats":stats,"entities":entities,
        "modules":[{"id":"module:"+digest(k)[:12],"label":k,"count":v} for k,v in modules.most_common()],
        "patents":patents,"registration_members":member_payload,
        "registration_relations":[{"id":m["id"],"source":m["member_application_id"],"target":m["canonical_filing_application_id"],"type":m["relation_type"],"kind":"fact","source_proof":registration_module().public_record(m)["validated_proof"]} for m in registration["active"]],
-       "insights":[i for i in active_insights(c) if set(i.get("patent_ids",[]))<=appids],"relations":relations,"detail_shards":{}}
+       "insights":role_insights,"shared_role_facts":shared_facts,"relations":relations,"detail_shards":{}}
     return payload,details
 def render(c,output,preview=False,report_context=None):
     """Publish a report only after all data and asset checks succeed."""
@@ -1719,6 +1784,7 @@ def _render_staged(c,output,preview=False,report_context=None):
     out.mkdir(parents=True,exist_ok=True);(out/"data").mkdir(exist_ok=True)
     for name in ("index.html","style.css","app.js","timeline-zoom.css","timeline-zoom.js","timeline-reading.css","timeline-reading.js","ip-comparison.css","ip-comparison.js","industry-research.css","industry-research.js","research.css","research.js"):
         require((assets/name).is_file(),"Missing frontend asset "+name);shutil.copy2(assets/name,out/name)
+    shutil.copy2(assets.parent/"role-evidence.js",out/"role-evidence.js")
     auxiliary=auxiliary_module();aux_items=auxiliary.records(c)
     image_paths,unavailable_images=auxiliary.copy_local_images(c,[item for item in aux_items if item["application_id"] in displayed_appids],out,auxiliary_context())
     document_images.copy_verified(embedded_blobs,out,auxiliary_context())
@@ -1730,6 +1796,34 @@ def _render_staged(c,output,preview=False,report_context=None):
     try:assembled=report_data.assemble(payload,details,sanitized(report_context or {}))
     except report_data.ReportDataError as exc:raise ValidationError(str(exc)) from exc
     report_data.emit(out,assembled)
+    contract = (report_context or {}).get('reader_contract')
+    if contract is not None or (report_context or {}).get('report_contract_version') is not None:
+        reader_spec=importlib.util.spec_from_file_location('reader_contract',pkg/'scripts/reader_contract.py')
+        reader=importlib.util.module_from_spec(reader_spec);reader_spec.loader.exec_module(reader)
+        evidence_map={e['id']:appid for appid,detail in details.items() for e in detail.get('evidence',[])}
+        try:
+            reader.require_contract_version(report_context or {})
+            source_quotes={e['id']:e.get('quote', '') for detail in details.values() for e in detail.get('evidence',[])}
+            reader.validate(contract, evidence_map, evidence_owners=evidence_map, source_quotes=source_quotes)
+            reader.project_report.bind_questions(contract, c, run_info(c)['scope'].get('synthetic') is True)
+            for section in contract.get('reading_context', {}).get('walkthroughs', []):
+                if section['application_id'] not in displayed_appids:
+                    raise ValueError('Mechanism explanation is outside the report scope')
+                engine_copy = {'title': section['title'], 'body': section['summary'] + ' ' + section['boundary']}
+                check_role_copy(engine_copy)
+                for block in section['blocks']:
+                    check_role_copy({'title': block['heading'], 'body': ' '.join([block['text']] + block.get('steps', []))})
+        except ValueError as exc:
+            raise ValidationError(str(exc)) from exc
+        page=(out/'index.html').read_text(encoding='utf-8')
+        page=page.replace('<section id="executive-overview"',reader.render(contract)+'<section id="executive-overview"')
+        page=page.replace('<footer class="page-footer">',reader.render(contract,'mechanisms')+reader.render(contract,'answers')+'<footer class="page-footer">')
+        page=page.replace('</head>','<style>'+reader.STYLE+'</style></head>')
+        encoded=json.dumps({'contract':contract,'evidence_map':evidence_map},ensure_ascii=False).replace('<','\\u003c')
+        page=page.replace('</body>','<script>window.PP_READER_CONTEXT='+encoded+';'+reader.SCRIPT+'</script></body>')
+        page=reader.project_report.insert(page, contract, '<header class="report-title">', synthetic=run_info(c)['scope'].get('synthetic') is True)
+        (out/'index.html').write_text(page,encoding='utf-8')
+        (out/'data/reader-contract.json').write_text(json.dumps(contract,ensure_ascii=False,indent=2),encoding='utf-8')
     industry_data=assembled.get("industry-research.js",(None,None))[1]
     if industry_data is not None:
         export_spec=importlib.util.spec_from_file_location("patent_industry_exports",pkg/"scripts"/"industry_exports.py")

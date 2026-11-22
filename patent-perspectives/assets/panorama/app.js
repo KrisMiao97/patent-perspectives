@@ -36,6 +36,8 @@
   const modules = asArray(raw.modules);
   const moduleNames = new Map(modules.map(item => [String(item.id), text(item.label || item.id)]));
   const insights = asArray(raw.insights);
+  const {appendBoundary, verifiedStatus, statusCoverage} = window.PP_ROLE_EVIDENCE;
+  const sharedFact = insight => raw.shared_role_facts?.[insight.shared_fact_id];
   const relations = asArray(raw.relations);
   const details = new Map(Object.entries(asObject(window.PP_DETAILS)));
   const shardPromises = new Map();
@@ -53,7 +55,7 @@
   const isDesign = patent => /design|外观/i.test(String(patent.patent_type || ''));
   const isTechnical = patent => /invention|utility|发明|实用新型/i.test(String(patent.patent_type || ''));
   const complete = patent => /^(complete|completed|done|已完成|完成)$/i.test(String(patent.analysis_status || ''));
-  const statusValue = patent => text(patent.legal_status || 'unknown');
+  const statusValue = verifiedStatus;
   const statusLabel = value => ({'有效':'授权有效','审中':'申请中 / 审查中', unknown:'未知', granted:'已授权', pending:'审查中', expired:'期限届满', lapsed:'权利终止', withdrawn:'已撤回', rejected:'已驳回', published:'已公开', active:'登记为存续', invalidated:'已被宣告无效', partially_invalidated:'部分被宣告无效' }[String(value).toLowerCase()] || knownText(value));
   const basisLabel = value => ({ description:'说明书', specification:'说明书', full_description:'说明书', claims:'完整权利要求', claims_only:'仅完整权利要求', claims_fallback:'完整权利要求回退', abstract:'仅摘要', none:'无合格全文', unknown:'未知' }[String(value || 'unknown').toLowerCase()] || knownText(value));
   const isClaimsBasis = patent => /claim|权利要求/i.test(String(patent.text_basis || ''));
@@ -138,7 +140,9 @@
     $('design-total').textContent = nfmt(patents.filter(isDesign).length);
     $('footer-run').textContent = '公开记录截至 '+run.as_of_date+' · 状态观察：'+report.settings.status_observed_at;
     setupFilters();
-    document.querySelectorAll('.role-button').forEach(node => node.addEventListener('click',() => { state.role=node.dataset.role; renderRole(); renderAnalysis(); renderProductFacts(); }));
+    document.querySelectorAll('.role-button').forEach(node => node.addEventListener('click',() => { state.role=node.dataset.role; window.PP_READER_GUIDE?.show(state.role); renderRole(); renderAnalysis(); renderProductFacts(); }));
+    document.addEventListener('reader-role',e=>document.querySelector('.role-button[data-role="'+e.detail+'"]')?.click());
+    document.addEventListener('reader-source',async e=>{const ctx=window.PP_READER_CONTEXT;if(!ctx)return;await openPatent(ctx.evidence_map[e.detail],[e.detail]);const boundary=el('div','reader-boundary',ctx.contract.scope+' '+ctx.contract.common_boundary+' '+ctx.contract.market_search.statement);$('dialog-body').prepend(boundary);});
     document.querySelectorAll('#library-mode button').forEach(node => node.addEventListener('click',() => { state.library=node.dataset.mode; state.type=''; state.page=1; state.expanded=null; $('filter-type').value=''; if(state.library==='design'){state.quality='';$('filter-quality').value='';} render(); }));
     document.querySelectorAll('#graph-mode button').forEach(node => node.addEventListener('click',() => {state.graphMode=node.dataset.mode; state.zoom=1; renderGraph(); updatePressed('#graph-mode','mode',state.graphMode);}));
     $('search').addEventListener('input',() => {state.search=$('search').value.trim(); state.page=1; render();});
@@ -401,9 +405,10 @@
     });container.append(grid);
   }
   function openInsight(insight) {
-    showDialog('INSIGHT / EVIDENCE CHAIN');const body=$('dialog-body');
-    body.append(el('h2','',insight.title || '角色解读'),el('p','',insight.body || '未知'),el('div','detail-banner','适用范围：'+text(insight.scope || run.scope || '未注明')+'。结论采用原始分析范围，不随目录筛选自动改变。'));
-    if(asArray(insight.limitations).length)body.append(el('h3','','未知与判断限制'),add(el('ul','limitations-list'),asArray(insight.limitations).map(value=>el('li','',value))));
+    showDialog('结论与原文依据');const body=$('dialog-body');
+    body.append(el('h2','',insight.title || '角色解读'));
+    appendBoundary(body, insight.boundary || insight, sharedFact(insight));
+    body.append(el('p','',insight.body || '未知'));
     body.append(el('h3','','结论 → 相关申请 → 原文证据'));
     const ids=asArray(insight.patent_ids).map(String),list=el('div','insight-patents');
     if(!ids.length)body.append(el('p','unknown-text','本条结论没有绑定可用的申请编号，需要补齐证据链。'));
@@ -428,6 +433,15 @@
   const statusColors={'有效':'#2769c1','审中':'#20a0a4','失效':'#91a0b4','PCT指定期内':'#9a7ec4','PCT指定期满':'#c6b0dc','unknown':'#dfc482'};
   const colors=['#2869c0','#29a0a7','#9279c7','#da9a49','#7295c9','#74aaa0'];
   const getCount=(arr,value,key)=>arr.filter(p=>p[key]===value).length;
+  const statusHeaders=['授权有效','审中','失效','PCT阶段','其他已核','状态已核','状态未知','合计'];
+  const statusScopeNote='状态按所获来源的观察时间计。仅有检索著录、记录未取得或有冲突时，计入未知。';
+  function statusColumns(rows, onStatusClick){
+    const stats=statusCoverage(rows), standard=['有效','审中','失效'];
+    const values=standard.map(s=>onStatusClick ? onStatusClick(s,rows.filter(p=>verifiedStatus(p)===s)) : stats.count(s));
+    const pct=stats.count('PCT指定期内')+stats.count('PCT指定期满');
+    const other=stats.known-pct-standard.reduce((sum,s)=>sum+stats.count(s),0);
+    return [...values,pct,other,stats.known,stats.unknown,rows.length];
+  }
   const makeCard=(label,value,note,action)=>{const node=add(el('article','metric-card'),el('div','metric-label',label),el('div','metric-number',nfmt(value)),el('div','metric-note',note));if(action){const b=button('查看申请','text-button',action);node.append(b);}return node;};
   const header=(title,subtitle)=>add(el('div','report-panel-heading'),el('h3','',title),el('p','chart-note',subtitle));
   const panel=(title,subtitle)=>add(el('section','panel report-panel'),header(title,subtitle));
@@ -441,17 +455,24 @@
   function inspectRows(title,items,notice=report.settings.analysis_label+'；当前筛选已应用。'){
     showDialog('统计依据');const body=$('dialog-body');body.append(el('h2','',title),el('p','',notice+' 共 '+nfmt(items.length)+' 件。'));
     let shown=0;const list=el('div','inspection-list'),more=button('再显示 50 件','subtle-button',draw);body.append(list,more);draw();
-    function draw(){items.slice(shown,shown+50).forEach(p=>{const b=button(p.title||p.id,'inspection-row',()=>byId.has(p.id)?openPatent(p.id):showPortfolioRecord(p));b.append(el('small','',p.application_number+' · '+(p.filing_date||'日期未知')+' · '+statusName(p.legal_status)));list.append(b);});shown+=50;more.hidden=shown>=items.length;}
+    function draw(){items.slice(shown,shown+50).forEach(p=>{const b=button(p.title||p.id,'inspection-row',()=>byId.has(p.id)?openPatent(p.id):showPortfolioRecord(p));b.append(el('small','',p.application_number+' · '+(p.filing_date||'日期未知')+' · '+statusName(statusValue(p))));list.append(b);});shown+=50;more.hidden=shown>=items.length;}
   }
-  function showPortfolioRecord(p){showDialog('公开申请著录');$('dialog-body').append(el('h2','',p.title),readableTable({application_number:p.application_number,publication_number:p.publication_numbers.join('；'),type:typeLabel(p.patent_type),legal_status:statusName(p.legal_status),original_assignees:p.original_assignees,current_assignees:p.current_assignees,filing_date:p.filing_date}),el('p','',portfolio.scope),el('p','','此条仅提供著录与状态，当前技术分析范围以目录为准。'));}
+  function showPortfolioRecord(p){showDialog('公开申请著录');$('dialog-body').append(el('h2','',p.title),readableTable({application_number:p.application_number,publication_number:p.publication_numbers.join('；'),type:typeLabel(p.patent_type),legal_status:statusName(statusValue(p)),original_assignees:p.original_assignees,current_assignees:p.current_assignees,filing_date:p.filing_date}),el('p','',portfolio.scope),el('p','',statusScopeNote));}
   function renderPortfolio(){
     const rows=portfolio.rows;$('portfolio-scope').textContent=portfolio.scope;
-    replace($('portfolio-metrics'),makeCard('范围内公开申请',rows.length,portfolio.count_note,()=>inspectRows('公开申请',rows,portfolio.scope)),...['有效','审中','失效'].map(s=>makeCard(statusName(s),getCount(rows,s,'legal_status'),'法律状态观察：'+report.settings.status_observed_at,()=>inspectRows(statusName(s),rows.filter(p=>p.legal_status===s),portfolio.scope))));
-    $('portfolio-note').textContent='此处统计范围：'+portfolio.scope+'。状态未知 '+getCount(rows,'unknown','legal_status')+' 件；PCT及其他状态 '+rows.filter(p=>!['有效','审中','失效','unknown'].includes(p.legal_status)).length+' 件。公开申请记录与当前拥有量分别列示。';
+    const stats=statusCoverage(rows);
+    replace($('portfolio-metrics'),makeCard('范围内公开申请',rows.length,portfolio.count_note,()=>inspectRows('公开申请',rows,portfolio.scope)),...['有效','审中','失效'].map(s=>makeCard(statusName(s),stats.count(s),'状态已核 '+stats.known+' 件，未知 '+stats.unknown+' 件',()=>inspectRows(statusName(s),rows.filter(p=>verifiedStatus(p)===s),portfolio.scope))));
+    $('portfolio-note').textContent='此处统计范围：'+portfolio.scope+'。'+statusScopeNote+'公开申请记录与当前拥有量分别列示。';
     const types=panel('专利类型结构','独立申请计数，未知类型保留。');bars(types,countBy(rows,'patent_type'),rows.length,typeLabel,k=>inspectRows(typeLabel(k),rows.filter(p=>p.patent_type===k),portfolio.scope));
     const years=panel('历年申请量','按申请年归组。近期年度存在公开滞后，件数不直接等于研发投入。');bars(years,countBy(rows,p=>p.filing_date.slice(0,4)||'日期未知').sort((a,b)=>a[0].localeCompare(b[0])),rows.length,x=>x,y=>inspectRows(y+'年',rows.filter(p=>(p.filing_date.slice(0,4)||'日期未知')===y),portfolio.scope));replace($('portfolio-charts'),types,years);
   }
-  function renderMetrics(){replace($('metrics'),makeCard('发明申请',getCount(filtered,'invention','patent_type'),'当前筛选'),makeCard('实用新型申请',getCount(filtered,'utility_model','patent_type'),'当前筛选'),makeCard('授权有效',getCount(filtered,'有效','legal_status'),'状态观察：'+report.settings.status_observed_at),makeCard('申请中 / 审查中',getCount(filtered,'审中','legal_status'),'已公开且来源标记在审'));$('selected-scope').textContent=report.settings.analysis_label+' · 当前 '+nfmt(filtered.length)+' 件 · '+report.settings.date_note;$('selected-state-note').textContent='日期未知 '+filtered.filter(p=>!p.filing_date).length+' 件；状态未知 '+getCount(filtered,'unknown','legal_status')+' 件。公司概览不随本区筛选变化。';renderAnalysis();}
+  function renderMetrics(){
+    const stats=statusCoverage(filtered), scope='状态已核 '+stats.known+' 件，未知 '+stats.unknown+' 件';
+    replace($('metrics'),makeCard('发明申请',getCount(filtered,'invention','patent_type'),'当前筛选'),makeCard('实用新型申请',getCount(filtered,'utility_model','patent_type'),'当前筛选'),makeCard('授权有效',stats.count('有效'),scope),makeCard('申请中 / 审查中',stats.count('审中'),scope));
+    $('selected-scope').textContent=report.settings.analysis_label+' · 当前 '+nfmt(filtered.length)+' 件 · '+report.settings.date_note;
+    $('selected-state-note').textContent='日期未知 '+filtered.filter(p=>!p.filing_date).length+' 件。'+scope+'。公司概览不随本区筛选变化。';
+    renderAnalysis();
+  }
   function selectModule(module){state.module=module;state.page=1;$('filter-module').value=module;render();}
   function renderAnalysis(){
     const area=$('role-analysis');replace(area);
@@ -482,18 +503,37 @@
     report.simple_families.filter(f=>ids.has(f.application_id)&&f.family_id).forEach(f=>{if(!groups.has(f.family_id))groups.set(f.family_id,{id:f.family_id,apps:new Set(),members:new Set(),regions:new Set(),sources:new Set()});const g=groups.get(f.family_id);g.apps.add(f.application_id);f.members.forEach(m=>{g.members.add(m.publication_number);g.regions.add(m.authority);});g.sources.add(f.source_id);});return [...groups.values()].sort((a,b)=>b.regions.size-a.regions.size||b.apps.size-a.apps.size||String(a.id).localeCompare(String(b.id)));
   }
   function renderIP(area){
-    const box=panel('技术分类 × 法律状态','当前筛选内独立申请。有效是采集时授权有效，失效可能包括终止、撤回、驳回；不能用这张表计算授权成功率。');
-    box.append(table(['技术分类','授权有效','审中','失效','PCT阶段','未知','合计'],countBy(filtered,'primary_module').map(([m,n])=>{const ps=filtered.filter(p=>p.primary_module===m);return [button(m,'table-link',()=>selectModule(m)),...['有效','审中','失效'].map(s=>button(nfmt(getCount(ps,s,'legal_status')),'table-link',()=>inspectRows(m+' · '+statusName(s),ps.filter(p=>p.legal_status===s)))),ps.filter(p=>p.legal_status.startsWith('PCT')).length,getCount(ps,'unknown','legal_status'),n];})));area.append(box);
-    const types=panel('发明与实用新型的状态不同','两个类型使用同一批申请和同一状态取得时间，授权有效占比不是审查质量或获权概率。');types.append(table(['专利类型','授权有效','审中','失效','PCT阶段','未知','合计'],['invention','utility_model'].map(t=>{const ps=filtered.filter(p=>p.patent_type===t);return [typeLabel(t),...['有效','审中','失效'].map(s=>getCount(ps,s,'legal_status')),ps.filter(p=>p.legal_status.startsWith('PCT')).length,getCount(ps,'unknown','legal_status'),ps.length];})));area.append(types);
+    const box=panel('技术分类 × 法律状态','当前筛选内的独立申请。'+statusScopeNote);
+    box.append(table(['技术分类',...statusHeaders],countBy(filtered,'primary_module').map(([module])=>{
+      const rows=filtered.filter(p=>p.primary_module===module);
+      return [button(module,'table-link',()=>selectModule(module)),...statusColumns(rows,(status,matches)=>button(nfmt(matches.length),'table-link',()=>inspectRows(module+' · '+statusName(status),matches,statusScopeNote)))];
+    })));area.append(box);
+    const types=panel('发明与实用新型的法律状态',statusScopeNote+'各列反映观察到的状态分布。');
+    types.append(table(['专利类型',...statusHeaders],['invention','utility_model'].map(type=>[typeLabel(type),...statusColumns(filtered.filter(p=>p.patent_type===type))])));
+    area.append(types);
     const fg=familyGroups(filtered),multi=fg.filter(g=>g.regions.size>1),family=panel('简单同族及跨地域成员','仅使用来源提供的简单同族编号；同族成员文献的地域不等于该地现有有效权利。');
     family.append(el('p','fact-text','当前筛选对应 '+nfmt(fg.length)+' 个已知简单同族，其中 '+nfmt(multi.length)+' 个的返回成员涉及多个受理机构；有同族记录的申请 '+nfmt(new Set(report.simple_families.filter(f=>filtered.some(p=>p.id===f.application_id)&&f.family_id).map(f=>f.application_id)).size)+' 件。'));
     family.append(table(['同族中的技术内容','当前范围申请','返回成员地域','成员文献数'],fg.slice(0,18).map(g=>{const ids=[...g.apps],p=byId.get(ids[0]);return [button(p.secondary_technology+' · '+p.title,'table-link',()=>inspectRows('简单同族 '+g.id,ids.map(id=>byId.get(id)),'来源简单同族成员中纳入本次筛选的独立申请。')),+g.apps.size,[...g.regions].map(x=>names[x]||x).join('、'),g.members.size];})));
     family.append(el('p','chart-note','按返回成员地域数排序展示前18组；同族编号与来源在各申请详情的“关系”中。引证质量、审查意见、稳定性或侵权风险未形成可核实的组合结论。'));area.append(family);
   }
-  function renderRole(){const info=roleInfo[state.role];document.querySelectorAll('.role-button').forEach(n=>{n.classList.toggle('active',n.dataset.role===state.role);n.setAttribute('aria-pressed',String(n.dataset.role===state.role));});$('role-description').textContent={management:'专利规模、产品线结构与技术变化',rd:'技术问题、实现路线与结构条件',ip:'法律状态、权利要求与同族布局'}[state.role];$('insights-title').textContent=state.role==='management'?'关键事实':info.label+' · 技术事实与案例';replace($('role-focus'));replace($('insight-grid'));$('insight-scope').hidden=true;if(state.role==='management')return;const insights=asArray(raw.insights).filter(i=>i.role===state.role);replace($('insight-grid'),insights.map(i=>add(el('article','insight-card'),el('h3','',i.title),el('p','',i.body),el('small','',text(i.scope)),button('查看依据','text-button',()=>openInsight(i)))));if(insights.length){$('insight-scope').hidden=false;$('insight-scope').textContent='文字结论保留各自注明的原始范围；筛选不会自动改写结论。';}}
+  function renderRole(){
+    const info=roleInfo[state.role],points=insights.filter(i=>i.role===state.role);
+    document.querySelectorAll('.role-button').forEach(n=>{const active=n.dataset.role===state.role;n.classList.toggle('active',active);n.setAttribute('aria-pressed',String(active));});
+    $('role-description').textContent=info.description;
+    $('insights-title').textContent=state.role==='management'?'关键事实':info.label+' · 技术事实与案例';
+    replace($('role-focus'));
+    replace($('insight-grid'),points.map(i=>{
+      const card=add(el('article','insight-card'),el('h3','',i.title));
+      appendBoundary(card,i.boundary || i,sharedFact(i));
+      card.append(el('p','',i.body),button('查看依据','text-button',()=>openInsight(i)));
+      return card;
+    }));
+    $('insight-scope').hidden=!points.length;
+    $('insight-scope').textContent='文字结论保留原研究范围。筛选只改变图表和目录的统计。';
+  }
   let openBranches=new Set(),leafLimits=new Map(),fullscreen=false;
   function mapNode(label,count,depth,action,extra){const node=el('div','mind-node depth-'+depth),b=button(label,'mind-label',action);if(count!=null)b.append(el('span','mind-count',nfmt(count)+' 件'));node.append(b);if(extra)node.append(el('small','mind-extra',extra));return node;}
-  function leaf(p){const node=mapNode(p.title,null,3,()=>openPatent(p.id));node.append(el('p','mind-description',p.summary||'本件技术解读待补齐，尚无技术归纳。'),el('small','mind-pn',p.publication_numbers.join(' / ')+' · '+statusName(p.legal_status)),button('归类依据','mind-basis',()=>{showDialog('技术分类依据');$('dialog-body').append(el('h2','',p.primary_module+' / '+p.secondary_technology),el('p','',(p.secondary_basis||{}).matched_text?'细分导航匹配了技术解读中的“'+(p.secondary_basis||{}).matched_text+'”。该索引用于组织阅读，不表示官方分类或权利保护范围。':'该件未匹配明确的细分导航词，保留“其他”或“技术解读待补齐”，未补造细分技术。'),el('blockquote','',p.summary||'技术解读待补齐'),button('打开对应申请与原文 ↗','text-button',()=>openPatent(p.id)));}));return node;}
+  function leaf(p){const node=mapNode(p.title,null,3,()=>openPatent(p.id));node.append(el('p','mind-description',p.summary||'本件技术解读待补齐，尚无技术归纳。'),el('small','mind-pn',p.publication_numbers.join(' / ')+' · '+statusName(statusValue(p))),button('归类依据','mind-basis',()=>{showDialog('技术分类依据');$('dialog-body').append(el('h2','',p.primary_module+' / '+p.secondary_technology),el('p','',(p.secondary_basis||{}).matched_text?'细分导航匹配了技术解读中的“'+(p.secondary_basis||{}).matched_text+'”。该索引用于组织阅读，不表示官方分类或权利保护范围。':'该件未匹配明确的细分导航词，保留“其他”或“技术解读待补齐”，未补造细分技术。'),el('blockquote','',p.summary||'技术解读待补齐'),button('打开对应申请与原文 ↗','text-button',()=>openPatent(p.id)));}));return node;}
   function treeBranch(key,label,items,depth,childFactory){
     const li=el('li','mind-branch'),row=mapNode((openBranches.has(key)?'− ':'+ ')+label,items.length,depth,()=>{if(openBranches.has(key))openBranches.delete(key);else openBranches.add(key);renderGraph();});
     if(key.startsWith('m:')&&label!=='待分析'){const parts=key.slice(2).split('|');row.append(button('技术梳理','mind-timeline',()=>openRoute(parts[0],parts[1]||'')));row.append(button('技术时间图 ↗','mind-timeline',()=>openTimelineLine(parts[0],parts[1]||'')));}
@@ -561,7 +601,7 @@
     const p=n.p,source=timelineData.nodes[p.id],card=button('','tl-card',()=>openTimelineNode(p.id,n.authored));
     card.dataset.applicationId=p.id;card.style.left=n.x+'px';card.style.top=(48+n.row*224)+'px';card.style.setProperty('--line-color',color);
     card.setAttribute('aria-label',timelineDate(p)+'，'+(n.authored?.title||p.tags?.[0]||p.title)+'，查看技术方案和原文');
-    card.append(el('span','tl-date',timelineDate(p)+' · '+(timelineState.date==='filing'?'申请':'文献公开')),el('strong','tl-node-title',n.authored?.title||p.tags?.[0]||p.secondary_technology),el('span','tl-node-body',n.authored?.body||source.means.join('；')),el('span','tl-node-pn',source.publication_number+' · '+statusName(p.legal_status)),el('span','tl-open','查看完整方案与原文 ↗'));
+    card.append(el('span','tl-date',timelineDate(p)+' · '+(timelineState.date==='filing'?'申请':'文献公开')),el('strong','tl-node-title',n.authored?.title||p.tags?.[0]||p.secondary_technology),el('span','tl-node-body',n.authored?.body||source.means.join('；')),el('span','tl-node-pn',source.publication_number+' · '+statusName(statusValue(p))),el('span','tl-open','查看完整方案与原文 ↗'));
     card.title=n.authored?.body||source.means.join('；');return card;
   }
   function drawTimeline(target,lanes,kind){
@@ -677,7 +717,7 @@
     }
     detail.append(el('p','chart-note','通用技术用途与具体产品分别归类。未明确用途的零部件不强行摊入产品线。产品分类依据可在逐件目录查看。'));section.append(detail);area.append(section);
   }
-  function renderProductFacts(){if(state.role!=='management'||!filtered.length)return;const groups=countBy(filtered,p=>productOf(p).group),top=groups[0],pair=report.settings.comparison_years,types=countBy(filtered,'patent_type');const cards=[{title:'当前范围 '+nfmt(filtered.length)+' 件申请',body:types.map(([t,n])=>typeLabel(t)+' '+nfmt(n)+' 件（'+ratio(n,filtered.length)+'）').join('；')+'。',rows:filtered},{title:top[0]+'占 '+ratio(top[1],filtered.length),body:'按所引文献应用场景归类，共 '+nfmt(top[1])+' 件；通用用途与待明确类别单列。',rows:filtered.filter(p=>productOf(p).group===top[0])}];if(pair.length===2){const [a,b]=pair,pa=filtered.filter(p=>p.filing_date.startsWith(a)),pb=filtered.filter(p=>p.filing_date.startsWith(b));if(pa.length&&pb.length){const changes=groups.map(([g])=>({g,a:pa.filter(p=>productOf(p).group===g).length,b:pb.filter(p=>productOf(p).group===g).length})).sort((x,y)=>Math.abs(y.b/pb.length-y.a/pa.length)-Math.abs(x.b/pb.length-x.a/pa.length)),v=changes[0];cards.push({title:v.g+'的年度构成变化',body:a+'年 '+v.a+'件（'+ratio(v.a,pa.length)+'）；'+b+'年 '+v.b+'件（'+ratio(v.b,pb.length)+'）。这是已公开申请的构成变化。',rows:[...pa,...pb].filter(p=>productOf(p).group===v.g)});}}replace($('insight-grid'),cards.map(v=>add(el('article','insight-card'),el('h3','',v.title),el('p','',v.body),button('查看构成申请','text-button',()=>inspectRows(v.title,v.rows)))));}
+  function renderProductFacts(){if(state.role!=='management'||!filtered.length||insights.some(i=>i.role==='management'))return;const groups=countBy(filtered,p=>productOf(p).group),top=groups[0],pair=report.settings.comparison_years,types=countBy(filtered,'patent_type');const cards=[{title:'当前范围 '+nfmt(filtered.length)+' 件申请',body:types.map(([t,n])=>typeLabel(t)+' '+nfmt(n)+' 件（'+ratio(n,filtered.length)+'）').join('；')+'。',rows:filtered},{title:top[0]+'占 '+ratio(top[1],filtered.length),body:'按所引文献应用场景归类，共 '+nfmt(top[1])+' 件；通用用途与待明确类别单列。',rows:filtered.filter(p=>productOf(p).group===top[0])}];if(pair.length===2){const [a,b]=pair,pa=filtered.filter(p=>p.filing_date.startsWith(a)),pb=filtered.filter(p=>p.filing_date.startsWith(b));if(pa.length&&pb.length){const changes=groups.map(([g])=>({g,a:pa.filter(p=>productOf(p).group===g).length,b:pb.filter(p=>productOf(p).group===g).length})).sort((x,y)=>Math.abs(y.b/pb.length-y.a/pa.length)-Math.abs(x.b/pb.length-x.a/pa.length)),v=changes[0];cards.push({title:v.g+'的年度构成变化',body:a+'年 '+v.a+'件（'+ratio(v.a,pa.length)+'）；'+b+'年 '+v.b+'件（'+ratio(v.b,pb.length)+'）。这是已公开申请的构成变化。',rows:[...pa,...pb].filter(p=>productOf(p).group===v.g)});}}replace($('insight-grid'),cards.map(v=>add(el('article','insight-card'),el('h3','',v.title),el('p','',v.body),button('查看构成申请','text-button',()=>inspectRows(v.title,v.rows)))));}
   function applicableProductEvents(){return productEvents.events.filter(e=>(!state.productGroup||e.groups.includes(state.productGroup))&&(!state.productLine||e.lines.includes(state.productLine)));}
   function renderProductEvents(){
     const events=applicableProductEvents(),canvas=$('company-product-canvas'),board=el('div','business-history');
@@ -721,7 +761,7 @@
     const box=el('div','heat-table-block'),controls=el('div','heat-legend');controls.append(el('span','','颜色依据：'));
     ['count','share'].forEach(k=>{const b=button(k==='count'?'申请件数':'年度占比','heat-mode',()=>{productHeatMeasure=k;renderAnalysis();});b.setAttribute('aria-pressed',String(productHeatMeasure===k));controls.append(b);});
     controls.append(el('span','heat-swatch light','少'),el('span','heat-swatch mid'),el('span','heat-swatch dark','多'),el('small','','同表统一色阶；零值留白。'));box.append(controls);
-    box.append(table([key==='group'?'产品大类':'产品线',...years.map(y=>y+(report.settings.partial_years.includes(y)?' *':'')),'合计','授权有效','审中'],sets.map(({rows,n})=>{const v=productOf(rows[0]),name=key==='group'?v.group:v.line,label=key==='line'&&!state.productGroup?v.group+' / '+name:name;return [button(label,'table-link',()=>chooseProduct(v.group,key==='line'?name:'')),...years.map(y=>{const yp=rows.filter(p=>p.filing_date.startsWith(y));return heatButton(yp.length,den[y],max,label+' · '+y,()=>inspectRows(label+' · '+y,yp));}),n,getCount(rows,'有效','legal_status'),getCount(rows,'审中','legal_status')];})));
+    box.append(table([key==='group'?'产品大类':'产品线',...years.map(y=>y+(report.settings.partial_years.includes(y)?' *':'')),'合计','授权有效','审中','状态已核','状态未知'],sets.map(({rows,n})=>{const v=productOf(rows[0]),name=key==='group'?v.group:v.line,label=key==='line'&&!state.productGroup?v.group+' / '+name:name,stats=statusCoverage(rows);return [button(label,'table-link',()=>chooseProduct(v.group,key==='line'?name:'')),...years.map(y=>{const yp=rows.filter(p=>p.filing_date.startsWith(y));return heatButton(yp.length,den[y],max,label+' · '+y,()=>inspectRows(label+' · '+y,yp));}),n,stats.count('有效'),stats.count('审中'),stats.known,stats.unknown];})));
     return box;
   }
   function shareCard(label,value,note,basis,action){return add(el('article','metric-card headline-card'),el('span','metric-basis',basis),el('div','metric-label',label),el('strong','metric-number',value),el('p','metric-note',note),button('查看口径与来源','text-button',action));}
@@ -783,19 +823,19 @@
       body.append(el('h4','','实现方向与技术内容'));
       const t=table(['实现方向','涉及的结构或过程（具体方案）','申请数','阅读'],dirs.map(([d,n])=>{const ps=all.filter(p=>p.secondary_technology===d),cases=routeCases(ps),p=cases.at(-1);return [button(d,'table-link',()=>openRoute(routeState.module,d)),add(el('div','route-cell'),el('p','',routeExcerpt(p)),button('方案原文 · '+timelineData.nodes[p.id].publication_number,'text-button',()=>openRouteCase(p.id))),n,button('梳理与时间','table-link',()=>openRoute(routeState.module,d))];}));t.classList.add('route-table');body.append(t);
     }
-    body.append(el('h4','','申请时间与技术内容'),table(['申请年','件数','发明','授权有效','审中'],years.map(y=>{const ys=rows.filter(p=>p.filing_date.startsWith(y));return [y+(report.settings.partial_years.includes(y)?' *':''),ys.length,getCount(ys,'invention','patent_type'),getCount(ys,'有效','legal_status'),getCount(ys,'审中','legal_status')];})),el('p','chart-note','* 标记年份为不完整年度。下列方案按各年首末申请选取，用于对照结构、动作和条件；同年只有一件时展示该件。'));
-    const cases=el('div','route-cases');routeCases(rows).forEach(p=>{const n=routeData.nodes[p.id],card=el('article','route-case');card.append(el('time','',p.filing_date+' · 申请'),el('h4','',p.tags?.[0]||p.title),el('p','route-direction',p.secondary_technology),el('p','',n.application_field.map(v=>v.text).join('；')),el('strong','','结构与作用过程'),el('p','',n.technical_means.map(v=>v.text).join('；')));if(n.conditions.length)card.append(el('strong','','条件与限定'),el('p','',n.conditions.map(v=>v.text).join('；')));else card.append(el('small','','已提取内容中无单列条件，完整范围见所引权利要求。'));card.append(el('small','',timelineData.nodes[p.id].publication_number+' · '+statusName(p.legal_status)),button('查看完整技术梳理与原文','text-button',()=>openRouteCase(p.id)));cases.append(card);});body.append(cases);
+    body.append(el('h4','','申请时间与技术内容'),table(['申请年','件数','发明','授权有效','审中','状态已核','状态未知'],years.map(y=>{const ys=rows.filter(p=>p.filing_date.startsWith(y)),stats=statusCoverage(ys);return [y+(report.settings.partial_years.includes(y)?' *':''),ys.length,getCount(ys,'invention','patent_type'),stats.count('有效'),stats.count('审中'),stats.known,stats.unknown];})),el('p','chart-note',statusScopeNote+'* 标记年份为不完整年度。下列方案按各年首末申请选取，用于对照结构、动作和条件；同年只有一件时展示该件。'));
+    const cases=el('div','route-cases');routeCases(rows).forEach(p=>{const n=routeData.nodes[p.id],card=el('article','route-case');card.append(el('time','',p.filing_date+' · 申请'),el('h4','',p.tags?.[0]||p.title),el('p','route-direction',p.secondary_technology),el('p','',n.application_field.map(v=>v.text).join('；')),el('strong','','结构与作用过程'),el('p','',n.technical_means.map(v=>v.text).join('；')));if(n.conditions.length)card.append(el('strong','','条件与限定'),el('p','',n.conditions.map(v=>v.text).join('；')));else card.append(el('small','','已提取内容中无单列条件，完整范围见所引权利要求。'));card.append(el('small','',timelineData.nodes[p.id].publication_number+' · '+statusName(statusValue(p))),button('查看完整技术梳理与原文','text-button',()=>openRouteCase(p.id)));cases.append(card);});body.append(cases);
     const branches=countBy(rows,p=>p.secondary_technology);if(branches.length>1)body.append(el('p','chart-note','上述节点来自 '+branches.length+' 个实现方向。分支间的结构和条件按各件文献分别呈现，时间顺序仅表示申请先后。'));
   }
   function renderResearch(area){
     const box=panel('技术大类与实现方向','每个技术大类及实现方向均提供结构、过程、条件与申请时间的梳理。');
     const groups=countBy(filtered,p=>p.primary_module+'｜'+p.secondary_technology);
-    const t=table(['技术大类','实现方向','申请数','发明','授权有效'],groups.map(([key,n])=>{const [m,s]=key.split('｜'),ps=filtered.filter(p=>p.primary_module===m&&p.secondary_technology===s);return [m==='待分析'?m:button(m,'table-link',()=>openRoute(m)),m==='待分析'?s:button(s,'table-link',()=>openRoute(m,s)),n,getCount(ps,'invention','patent_type'),getCount(ps,'有效','legal_status')];}));t.classList.add('route-index-table');box.append(t);area.append(box);appendSourceComparisons(area);renderTrend(area);
+    const t=table(['技术大类','实现方向','申请数','发明','授权有效','状态已核','状态未知'],groups.map(([key,n])=>{const [m,s]=key.split('｜'),ps=filtered.filter(p=>p.primary_module===m&&p.secondary_technology===s),stats=statusCoverage(ps);return [m==='待分析'?m:button(m,'table-link',()=>openRoute(m)),m==='待分析'?s:button(s,'table-link',()=>openRoute(m,s)),n,getCount(ps,'invention','patent_type'),stats.count('有效'),stats.known,stats.unknown];}));t.classList.add('route-index-table');box.append(t,el('p','chart-note',statusScopeNote));area.append(box);appendSourceComparisons(area);renderTrend(area);
   }
   function readerScope(){showDialog('范围与来源');const b=$('dialog-body');b.append(el('h2','','统计范围'),table(['口径','范围'],[['公司概览',portfolio.scope],['技术分析',report.settings.analysis_label],['申请日期',report.settings.date_note],['公开截止',run.as_of_date],['法律状态观察',report.settings.status_observed_at]]),el('p','',report.settings.coverage_note),el('p','','技术梳理优先采用完整权利要求，按需补读说明书。图中的申请先后与产品发布时间分别保留。'),el('p','','产品与技术大类每件一项，交叉标签可多选；通用或未明确用途不强行归入具体产品。'));if(official.owned)b.append(externalLink(official.url,official.source_title+' ↗'));Object.values(productEvents.sources).forEach(s=>b.append(externalLink(s.url,s.title+' ↗')));}
   function scopeChips(target,kind){const node=$(target);replace(node);node.append(el('strong','',kind==='business'?'跟随产品选择':'跟随分析范围筛选'));const labels=[state.productGroup,state.productLine,...(kind==='business'?[]:[state.module,state.entity,state.authority,state.type?typeLabel(state.type):'',state.status?statusName(state.status):'',state.from||state.to?(state.from||'不限')+'—'+(state.to||'不限'):'',state.search?'搜索：'+state.search:'',state.basis?basisLabel(state.basis):'',state.quality?state.quality==='complete'?'已完成解读':'待补齐':''])].filter(Boolean);node.append(el('span','',labels.length?labels.join(' · '):'全部'));}
   function renderRevision06(){renderHeadlines();renderRoutes();['product-patent','timeline-overview','timeline-line','graph','route'].forEach(id=>scopeChips(id+'-filter-scope','patent'));scopeChips('company-product-filter-scope','business');document.body.dataset.readerRole=state.role;$('reader-view-note').textContent={management:'管理层视角 · 拥有量、专利类型、地域布局与产品线变化。',rd:'研发视角 · 技术大类、实现方向、结构、过程与限定条件。',ip:'专利工程师视角 · 法律状态、权利要求、文献版本与同族关系。'}[state.role];}
-  function directoryCSV(rows=filtered){const cells=[['申请号','标题','产品大类','产品线','技术大类','实现方向','申请日','专利类型','法律状态','受理机构'],...rows.map(p=>[p.application_number,p.title,productOf(p).group,productOf(p).line,p.primary_module,p.secondary_technology,p.filing_date,typeLabel(p.patent_type),statusName(p.legal_status),p.authority])];const quote=v=>{let s=String(v??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};return '\ufeff'+cells.map(r=>r.map(quote).join(',')).join('\r\n');}
+  function directoryCSV(rows=filtered){const cells=[['申请号','标题','产品大类','产品线','技术大类','实现方向','申请日','专利类型','法律状态','受理机构'],...rows.map(p=>[p.application_number,p.title,productOf(p).group,productOf(p).line,p.primary_module,p.secondary_technology,p.filing_date,typeLabel(p.patent_type),statusName(statusValue(p)),p.authority])];const quote=v=>{let s=String(v??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};return '\ufeff'+cells.map(r=>r.map(quote).join(',')).join('\r\n');}
   function initializeRevision06(){
     ['module','direction'].forEach(k=>$('route-'+k).addEventListener('change',()=>{routeState[k]=$('route-'+k).value;if(k==='module')routeState.direction='';renderRoutes();}));
     $('directory-jump').addEventListener('change',()=>{state.page=Math.min(Math.max(1,Number($('directory-jump').value)||1),Math.max(1,Math.ceil(filtered.length/50)));renderList();});

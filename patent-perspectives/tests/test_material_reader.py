@@ -77,7 +77,24 @@ class MaterialReaderTests(unittest.TestCase):
             for point in role['reasons']:point['evidence_ids']=[ev['id']]
         for chapter in data['chapters']:chapter['evidence_ids']=[ev['id']]
         reader.bind_run(data,str(self.helper.dbpath));reader.validate(data)
+        record = data['records'][0]
+        expected = json.loads(self.db.execute('SELECT data FROM analyses').fetchone()[0])['primary_module']
+        self.assertEqual(record.pop('technical_object'), expected)
+        record['technical_object'] = 'classification from a different application'
+        with self.assertRaisesRegex(ValueError, 'technical object differs'):
+            reader.bind_run(data,str(self.helper.dbpath))
+        record['technical_object'] = expected
         reader.build(data,self.directory/'portable.html');self.assertTrue((self.directory/'portable.html').exists())
+        # Caller-provided display flags cannot suppress a synthetic database's label.
+        from test_project_report import fixture as project_fixture
+        contract=project_fixture()
+        contract['questions'][0]['evidence_ids']=[ev['id']]
+        contract['role_guides']['rd']['evidence_ids']=[ev['id']]
+        data.update(reader_contract=contract,report_contract_version=2,validation={'synthetic_run':False})
+        reader.bind_run(data,str(self.helper.dbpath))
+        self.assertTrue(data['validation']['synthetic_run'])
+        reader.build(data,self.directory/'bound-project.html')
+        self.assertIn('模拟案例 · 接口评审',(self.directory/'bound-project.html').read_text('utf8'))
         data['sources'][0]['quote']='invented'
         with self.assertRaises(ValueError):reader.bind_run(data,str(self.helper.dbpath))
 
